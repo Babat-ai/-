@@ -1,0 +1,47 @@
+name: Fetch reference site snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "URL to snapshot"
+        required: true
+        default: "https://senseisha.co.jp/"
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Snapshot page
+        run: |
+          node -e "
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+            await page.goto(process.env.TARGET_URL, { waitUntil: 'networkidle', timeout: 60000 });
+            await page.screenshot({ path: 'snapshot.png', fullPage: true });
+            const html = await page.content();
+            require('fs').writeFileSync('snapshot.html', html);
+            await browser.close();
+          })();
+          "
+        env:
+          TARGET_URL: ${{ github.event.inputs.url }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-snapshot
+          path: |
+            snapshot.png
+            snapshot.html
