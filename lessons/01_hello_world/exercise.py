@@ -1,7 +1,2 @@
-# レッスン01: Hello World
-#
-# TODO 1: print() を使って、画面に「Hello, World!」と表示してください。
-#         例: print("表示したい文字")
-#
-# TODO 2: print() を使って、あなたの名前を使った自己紹介を1行表示してください。
-#         例: 「私の名前は◯◯です」
+print("Hello, world!")
+print("私の名前は達彦です。")
