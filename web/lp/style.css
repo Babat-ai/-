@@ -49,18 +49,22 @@ body {
 /* ヒーロー */
 .hero {
   text-align: center;
-  padding: 80px 20px;
-  background: linear-gradient(180deg, #fff5f5, #ffffff);
+  padding: 140px 20px;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("hero-runner.jpg") center / cover no-repeat;
+  color: #fff;
 }
 
 .hero h1 {
   font-size: 2.2rem;
   margin-bottom: 16px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .hero p {
   margin-bottom: 28px;
-  color: #555;
+  color: #f0f0f0;
 }
 
 /* 機能紹介 */
