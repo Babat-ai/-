@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ '編集' if customer else '新規登録' }} | 顧客管理{% endblock %}
+{% block content %}
+  <h2>{{ '顧客情報の編集' if customer else '新規顧客登録' }}</h2>
+  <form method="post" class="customer-form">
+    <label>
+      会社名 <span class="required">必須</span>
+      <input type="text" name="company_name" required value="{{ customer.company_name if customer else '' }}">
+    </label>
+    <label>
+      担当者名
+      <input type="text" name="contact_name" value="{{ customer.contact_name if customer else '' }}">
+    </label>
+    <label>
+      メールアドレス
+      <input type="email" name="email" value="{{ customer.email if customer else '' }}">
+    </label>
+    <label>
+      電話番号
+      <input type="text" name="phone" value="{{ customer.phone if customer else '' }}">
+    </label>
+    <label>
+      備考
+      <textarea name="notes" rows="4">{{ customer.notes if customer else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ '更新する' if customer else '登録する' }}</button>
+      <a href="{{ url_for('index') }}">キャンセル</a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}顧客一覧 | 顧客管理{% endblock %}
+{% block content %}
+  <div class="toolbar">
+    <a href="{{ url_for('new_customer') }}" class="btn">+ 新規登録</a>
+  </div>
+
+  {% if customers %}
+  <table class="customer-table">
+    <thead>
+      <tr>
+        <th>会社名</th>
+        <th>担当者</th>
+        <th>メール</th>
+        <th>電話番号</th>
+        <th>登録日</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in customers %}
+      <tr>
+        <td>{{ c.company_name }}</td>
+        <td>{{ c.contact_name }}</td>
+        <td>{{ c.email }}</td>
+        <td>{{ c.phone }}</td>
+        <td>{{ c.created_at }}</td>
+        <td class="actions">
+          <a href="{{ url_for('edit_customer', customer_id=c.id) }}">編集</a>
+          <form method="post" action="{{ url_for('delete_customer', customer_id=c.id) }}"
+                onsubmit="return confirm('本当に削除しますか?');" class="inline-form">
+            <button type="submit" class="link-btn">削除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">まだ顧客が登録されていません。</p>
+  {% endif %}
+{% endblock %}
