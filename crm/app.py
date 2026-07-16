@@ -84,6 +84,18 @@ def init_db():
                 (ADMIN_USERNAME, ADMIN_PASSWORD_HASH),
             )
             db.commit()
+        if db.execute("SELECT COUNT(*) FROM customer_contacts").fetchone()[0] == 0:
+            legacy_contacts = db.execute(
+                "SELECT id, contact_name, email FROM customers "
+                "WHERE (contact_name IS NOT NULL AND contact_name != '') "
+                "OR (email IS NOT NULL AND email != '')"
+            ).fetchall()
+            for row in legacy_contacts:
+                db.execute(
+                    "INSERT INTO customer_contacts (customer_id, name, email) VALUES (?, ?, ?)",
+                    (row["id"], row["contact_name"], row["email"]),
+                )
+            db.commit()
 
 
 def _safe_next_url(url):
@@ -315,16 +327,35 @@ def _customer_ancestors(db, customer):
     return chain
 
 
+def _rollup_sales_totals(ordered_customers, own_totals):
+    children_map = {}
+    for c, _ in ordered_customers:
+        children_map.setdefault(c["parent_id"], []).append(c["id"])
+    rollup = {}
+    for c, _ in reversed(ordered_customers):
+        total = own_totals.get(c["id"], 0)
+        for child_id in children_map.get(c["id"], []):
+            total += rollup[child_id]
+        rollup[c["id"]] = total
+    return rollup
+
+
 @app.route("/customers")
 def list_customers():
     db = get_db()
     customers = db.execute(
-        "SELECT customers.*, COALESCE(SUM(sales.amount), 0) AS total_amount "
+        "SELECT customers.*, COALESCE(SUM(sales.amount), 0) AS own_total "
         "FROM customers LEFT JOIN sales ON sales.customer_id = customers.id "
         "GROUP BY customers.id"
     ).fetchall()
     ordered_customers = _customer_tree_order(customers)
-    return render_template("customer_list.html", ordered_customers=ordered_customers)
+    own_totals = {c["id"]: c["own_total"] for c in customers}
+    rollup_totals = _rollup_sales_totals(ordered_customers, own_totals)
+    return render_template(
+        "customer_list.html",
+        ordered_customers=ordered_customers,
+        rollup_totals=rollup_totals,
+    )
 
 
 def _parent_options(db, exclude_ids=frozenset()):
@@ -342,13 +373,11 @@ def new_customer():
     if request.method == "POST":
         parent_id = request.form.get("parent_id") or None
         db.execute(
-            "INSERT INTO customers (company_name, parent_id, contact_name, email, phone, notes) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO customers (company_name, parent_id, phone, notes) "
+            "VALUES (?, ?, ?, ?)",
             (
                 request.form["company_name"],
                 parent_id,
-                request.form["contact_name"],
-                request.form["email"],
                 request.form["phone"],
                 request.form["notes"],
             ),
@@ -375,13 +404,11 @@ def edit_customer(customer_id):
                 flash("自分自身、または自分の下部組織を親には設定できません。", "error")
                 return redirect(url_for("edit_customer", customer_id=customer_id))
         db.execute(
-            "UPDATE customers SET company_name = ?, parent_id = ?, contact_name = ?, "
-            "email = ?, phone = ?, notes = ? WHERE id = ?",
+            "UPDATE customers SET company_name = ?, parent_id = ?, phone = ?, notes = ? "
+            "WHERE id = ?",
             (
                 request.form["company_name"],
                 parent_id,
-                request.form["contact_name"],
-                request.form["email"],
                 request.form["phone"],
                 request.form["notes"],
                 customer_id,
@@ -485,6 +512,15 @@ def _send_workbook(wb, filename):
     return send_file(buf, as_attachment=True, download_name=filename, mimetype=XLSX_MIME)
 
 
+def _customer_rollup_total(db, customer_id):
+    ids = [customer_id, *_customer_descendant_ids(db, customer_id)]
+    placeholders = ",".join("?" * len(ids))
+    return db.execute(
+        f"SELECT COALESCE(SUM(amount), 0) FROM sales WHERE customer_id IN ({placeholders})",
+        ids,
+    ).fetchone()[0]
+
+
 @app.route("/customers/<int:customer_id>")
 def customer_detail(customer_id):
     db = get_db()
@@ -500,21 +536,19 @@ def customer_detail(customer_id):
     total_amount = sum(s["amount"] for s in sales)
 
     ancestors = _customer_ancestors(db, customer)
-    children = db.execute(
-        "SELECT customers.*, COALESCE(SUM(sales.amount), 0) AS total_amount "
-        "FROM customers LEFT JOIN sales ON sales.customer_id = customers.id "
-        "WHERE customers.parent_id = ? GROUP BY customers.id ORDER BY customers.company_name",
-        (customer_id,),
+    child_rows = db.execute(
+        "SELECT * FROM customers WHERE parent_id = ? ORDER BY company_name", (customer_id,)
     ).fetchall()
+    children = [
+        {**dict(child), "total_amount": _customer_rollup_total(db, child["id"])}
+        for child in child_rows
+    ]
     descendant_ids = _customer_descendant_ids(db, customer_id)
-    org_total = None
-    if descendant_ids:
-        placeholders = ",".join("?" * len(descendant_ids))
-        descendant_total = db.execute(
-            f"SELECT COALESCE(SUM(amount), 0) FROM sales WHERE customer_id IN ({placeholders})",
-            list(descendant_ids),
-        ).fetchone()[0]
-        org_total = total_amount + descendant_total
+    org_total = _customer_rollup_total(db, customer_id) if descendant_ids else None
+
+    contacts = db.execute(
+        "SELECT * FROM customer_contacts WHERE customer_id = ? ORDER BY id", (customer_id,)
+    ).fetchall()
 
     chart_view = request.args.get("chart", "yearly")
     if chart_view not in ("yearly", "monthly"):
@@ -539,7 +573,76 @@ def customer_detail(customer_id):
         ancestors=ancestors,
         children=children,
         org_total=org_total,
+        contacts=contacts,
     )
+
+
+@app.route("/customers/<int:customer_id>/contacts/new", methods=["GET", "POST"])
+def new_contact(customer_id):
+    db = get_db()
+    customer = db.execute(
+        "SELECT * FROM customers WHERE id = ?", (customer_id,)
+    ).fetchone()
+    if customer is None:
+        return redirect(url_for("list_customers"))
+    if request.method == "POST":
+        db.execute(
+            "INSERT INTO customer_contacts (customer_id, name, email, phone, memo) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (
+                customer_id,
+                request.form["name"],
+                request.form["email"],
+                request.form["phone"],
+                request.form["memo"],
+            ),
+        )
+        db.commit()
+        return redirect(url_for("customer_detail", customer_id=customer_id))
+    return render_template("contact_form.html", customer=customer, contact=None)
+
+
+@app.route("/customers/<int:customer_id>/contacts/edit/<int:contact_id>", methods=["GET", "POST"])
+def edit_contact(customer_id, contact_id):
+    db = get_db()
+    customer = db.execute(
+        "SELECT * FROM customers WHERE id = ?", (customer_id,)
+    ).fetchone()
+    if customer is None:
+        return redirect(url_for("list_customers"))
+    if request.method == "POST":
+        db.execute(
+            "UPDATE customer_contacts SET name = ?, email = ?, phone = ?, memo = ? "
+            "WHERE id = ? AND customer_id = ?",
+            (
+                request.form["name"],
+                request.form["email"],
+                request.form["phone"],
+                request.form["memo"],
+                contact_id,
+                customer_id,
+            ),
+        )
+        db.commit()
+        return redirect(url_for("customer_detail", customer_id=customer_id))
+    contact = db.execute(
+        "SELECT * FROM customer_contacts WHERE id = ? AND customer_id = ?",
+        (contact_id, customer_id),
+    ).fetchone()
+    if contact is None:
+        return redirect(url_for("customer_detail", customer_id=customer_id))
+    return render_template("contact_form.html", customer=customer, contact=contact)
+
+
+@app.route("/customers/<int:customer_id>/contacts/delete/<int:contact_id>", methods=["POST"])
+def delete_contact(customer_id, contact_id):
+    db = get_db()
+    db.execute(
+        "DELETE FROM customer_contacts WHERE id = ? AND customer_id = ?",
+        (contact_id, customer_id),
+    )
+    db.commit()
+    return redirect(url_for("customer_detail", customer_id=customer_id))
 
 
 @app.route("/customers/<int:customer_id>/export")

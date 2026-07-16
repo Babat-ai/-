@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ '担当者編集' if contact else '担当者追加' }} | {{ customer.company_name }}{% endblock %}
+{% block content %}
+  <h2>{{ '担当者情報の編集' if contact else '担当者を追加' }} ({{ customer.company_name }})</h2>
+  <form method="post" class="data-form">
+    <label>
+      氏名
+      <input type="text" name="name" value="{{ contact.name if contact else '' }}">
+    </label>
+    <label>
+      メールアドレス
+      <input type="email" name="email" value="{{ contact.email if contact else '' }}">
+    </label>
+    <label>
+      電話番号
+      <input type="text" name="phone" value="{{ contact.phone if contact else '' }}">
+    </label>
+    <label>
+      備考
+      <textarea name="memo" rows="3">{{ contact.memo if contact else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ '更新する' if contact else '追加する' }}</button>
+      <a href="{{ url_for('customer_detail', customer_id=customer.id) }}">キャンセル</a>
+    </div>
+  </form>
+{% endblock %}

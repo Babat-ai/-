@@ -8,22 +8,14 @@
       <input type="text" name="company_name" required value="{{ customer.company_name if customer else '' }}">
     </label>
     <label>
-      親組織 (任意)
+      部署 (任意)
       <select name="parent_id">
         <option value="" {{ 'selected' if not selected_parent_id else '' }}>なし(独立した組織・企業)</option>
         {% for c, depth in parent_options %}
         <option value="{{ c.id }}" {{ 'selected' if c.id == selected_parent_id else '' }}>{{ '　' * depth }}{{ '└ ' if depth > 0 else '' }}{{ c.company_name }}</option>
         {% endfor %}
       </select>
-      <span class="hint">例: 「堺市」を親に選ぶと「堺市 環境局〇〇課」のように部署を分けて登録できます</span>
-    </label>
-    <label>
-      担当者名
-      <input type="text" name="contact_name" value="{{ customer.contact_name if customer else '' }}">
-    </label>
-    <label>
-      メールアドレス
-      <input type="email" name="email" value="{{ customer.email if customer else '' }}">
+      <span class="hint">例: 「堺市」を選ぶと「堺市 環境局〇〇課」のように部署を分けて登録できます</span>
     </label>
     <label>
       電話番号

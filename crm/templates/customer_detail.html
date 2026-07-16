@@ -17,15 +17,44 @@
 
   <h2>{{ customer.company_name }}</h2>
   <dl class="detail-list">
-    <dt>担当者</dt><dd>{{ customer.contact_name or '-' }}</dd>
-    <dt>メール</dt><dd>{{ customer.email or '-' }}</dd>
     <dt>電話番号</dt><dd>{{ customer.phone or '-' }}</dd>
     <dt>備考</dt><dd>{{ customer.notes or '-' }}</dd>
   </dl>
   <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary">顧客情報を編集</a>
 
   <div class="section-header">
-    <h3 class="section-title">下部組織・部署{% if org_total is not none %} (組織全体の累計 &yen;{{ "{:,}".format(org_total) }}){% endif %}</h3>
+    <h3 class="section-title">担当者</h3>
+    <a href="{{ url_for('new_contact', customer_id=customer.id) }}" class="btn btn-secondary">+ 担当者を追加</a>
+  </div>
+  {% if contacts %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>氏名</th>
+        <th>メールアドレス</th>
+        <th>電話番号</th>
+        <th>備考</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contact in contacts %}
+      <tr>
+        <td>{{ contact.name }}</td>
+        <td>{{ contact.email }}</td>
+        <td>{{ contact.phone }}</td>
+        <td>{{ contact.memo }}</td>
+        <td>{{ macros.action_buttons(url_for('edit_contact', customer_id=customer.id, contact_id=contact.id), url_for('delete_contact', customer_id=customer.id, contact_id=contact.id)) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">担当者はまだ登録されていません。</p>
+  {% endif %}
+
+  <div class="section-header">
+    <h3 class="section-title">部署{% if org_total is not none %} (組織全体の累計 &yen;{{ "{:,}".format(org_total) }}){% endif %}</h3>
     <a href="{{ url_for('new_customer', parent_id=customer.id) }}" class="btn btn-secondary">+ 部署を追加</a>
   </div>
   {% if children %}
@@ -33,7 +62,6 @@
     <thead>
       <tr>
         <th>会社名・団体名</th>
-        <th>担当者</th>
         <th>累計売上</th>
       </tr>
     </thead>
@@ -41,14 +69,13 @@
       {% for child in children %}
       <tr>
         <td><a href="{{ url_for('customer_detail', customer_id=child.id) }}">{{ child.company_name }}</a></td>
-        <td>{{ child.contact_name }}</td>
         <td>&yen;{{ "{:,}".format(child.total_amount) }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% else %}
-  <p class="empty">下部組織・部署は登録されていません。</p>
+  <p class="empty">部署は登録されていません。</p>
   {% endif %}
 
   <div class="section-header">

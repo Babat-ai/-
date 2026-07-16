@@ -9,6 +9,17 @@ CREATE TABLE IF NOT EXISTS customers (
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
 
+CREATE TABLE IF NOT EXISTS customer_contacts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    name TEXT,
+    email TEXT,
+    phone TEXT,
+    memo TEXT,
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
