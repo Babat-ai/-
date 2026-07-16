@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS customers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     company_name TEXT NOT NULL,
+    parent_id INTEGER REFERENCES customers (id) ON DELETE SET NULL,
     contact_name TEXT,
     email TEXT,
     phone TEXT,

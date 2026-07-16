@@ -6,11 +6,11 @@
     <a href="{{ url_for('new_customer') }}" class="btn">+ 新規登録</a>
   </div>
 
-  {% if customers %}
+  {% if ordered_customers %}
   <table class="data-table">
     <thead>
       <tr>
-        <th>会社名</th>
+        <th>会社名・団体名</th>
         <th>担当者</th>
         <th>メール</th>
         <th>電話番号</th>
@@ -20,9 +20,14 @@
       </tr>
     </thead>
     <tbody>
-      {% for c in customers %}
+      {% for c, depth in ordered_customers %}
       <tr>
-        <td><a href="{{ url_for('customer_detail', customer_id=c.id) }}">{{ c.company_name }}</a></td>
+        <td>
+          <span class="customer-name-cell" style="padding-left: {{ depth * 20 }}px;">
+            {% if depth > 0 %}<span class="tree-branch">└ </span>{% endif %}
+            <a href="{{ url_for('customer_detail', customer_id=c.id) }}">{{ c.company_name }}</a>
+          </span>
+        </td>
         <td>{{ c.contact_name }}</td>
         <td>{{ c.email }}</td>
         <td>{{ c.phone }}</td>

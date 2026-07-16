@@ -71,6 +71,13 @@ def init_db():
         with open(BASE_DIR / "schema.sql") as f:
             db.executescript(f.read())
         db.commit()
+        columns = {row["name"] for row in db.execute("PRAGMA table_info(customers)").fetchall()}
+        if "parent_id" not in columns:
+            db.execute(
+                "ALTER TABLE customers ADD COLUMN parent_id "
+                "INTEGER REFERENCES customers (id) ON DELETE SET NULL"
+            )
+            db.commit()
         if db.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
             db.execute(
                 "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)",
@@ -258,26 +265,88 @@ def index():
     )
 
 
+def _customer_tree_order(customers):
+    by_parent = {}
+    for c in customers:
+        by_parent.setdefault(c["parent_id"], []).append(c)
+    for children in by_parent.values():
+        children.sort(key=lambda c: c["company_name"])
+
+    ordered = []
+
+    def visit(parent_id, depth):
+        if depth > 20:
+            return
+        for c in by_parent.get(parent_id, []):
+            ordered.append((c, depth))
+            visit(c["id"], depth + 1)
+
+    visit(None, 0)
+    return ordered
+
+
+def _customer_descendant_ids(db, customer_id):
+    ids = set()
+    frontier = [customer_id]
+    while frontier:
+        placeholders = ",".join("?" * len(frontier))
+        rows = db.execute(
+            f"SELECT id FROM customers WHERE parent_id IN ({placeholders})", frontier
+        ).fetchall()
+        frontier = [r["id"] for r in rows if r["id"] not in ids]
+        ids.update(frontier)
+    return ids
+
+
+def _customer_ancestors(db, customer):
+    chain = []
+    seen = {customer["id"]}
+    current = customer
+    while current["parent_id"] is not None:
+        parent = db.execute(
+            "SELECT * FROM customers WHERE id = ?", (current["parent_id"],)
+        ).fetchone()
+        if parent is None or parent["id"] in seen:
+            break
+        chain.append(parent)
+        seen.add(parent["id"])
+        current = parent
+    chain.reverse()
+    return chain
+
+
 @app.route("/customers")
 def list_customers():
     db = get_db()
     customers = db.execute(
         "SELECT customers.*, COALESCE(SUM(sales.amount), 0) AS total_amount "
         "FROM customers LEFT JOIN sales ON sales.customer_id = customers.id "
-        "GROUP BY customers.id ORDER BY customers.id DESC"
+        "GROUP BY customers.id"
     ).fetchall()
-    return render_template("customer_list.html", customers=customers)
+    ordered_customers = _customer_tree_order(customers)
+    return render_template("customer_list.html", ordered_customers=ordered_customers)
+
+
+def _parent_options(db, exclude_ids=frozenset()):
+    customers = db.execute("SELECT * FROM customers").fetchall()
+    return [
+        (c, depth)
+        for c, depth in _customer_tree_order(customers)
+        if c["id"] not in exclude_ids
+    ]
 
 
 @app.route("/customers/new", methods=["GET", "POST"])
 def new_customer():
+    db = get_db()
     if request.method == "POST":
-        db = get_db()
+        parent_id = request.form.get("parent_id") or None
         db.execute(
-            "INSERT INTO customers (company_name, contact_name, email, phone, notes) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO customers (company_name, parent_id, contact_name, email, phone, notes) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
             (
                 request.form["company_name"],
+                parent_id,
                 request.form["contact_name"],
                 request.form["email"],
                 request.form["phone"],
@@ -286,18 +355,31 @@ def new_customer():
         )
         db.commit()
         return redirect(url_for("list_customers"))
-    return render_template("customer_form.html", customer=None)
+    selected_parent_id = request.args.get("parent_id", type=int)
+    return render_template(
+        "customer_form.html",
+        customer=None,
+        parent_options=_parent_options(db),
+        selected_parent_id=selected_parent_id,
+    )
 
 
 @app.route("/customers/edit/<int:customer_id>", methods=["GET", "POST"])
 def edit_customer(customer_id):
     db = get_db()
     if request.method == "POST":
+        parent_id = request.form.get("parent_id") or None
+        if parent_id is not None:
+            invalid_parents = {customer_id} | _customer_descendant_ids(db, customer_id)
+            if int(parent_id) in invalid_parents:
+                flash("自分自身、または自分の下部組織を親には設定できません。", "error")
+                return redirect(url_for("edit_customer", customer_id=customer_id))
         db.execute(
-            "UPDATE customers SET company_name = ?, contact_name = ?, email = ?, "
-            "phone = ?, notes = ? WHERE id = ?",
+            "UPDATE customers SET company_name = ?, parent_id = ?, contact_name = ?, "
+            "email = ?, phone = ?, notes = ? WHERE id = ?",
             (
                 request.form["company_name"],
+                parent_id,
                 request.form["contact_name"],
                 request.form["email"],
                 request.form["phone"],
@@ -310,7 +392,13 @@ def edit_customer(customer_id):
     customer = db.execute(
         "SELECT * FROM customers WHERE id = ?", (customer_id,)
     ).fetchone()
-    return render_template("customer_form.html", customer=customer)
+    exclude_ids = {customer_id} | _customer_descendant_ids(db, customer_id)
+    return render_template(
+        "customer_form.html",
+        customer=customer,
+        parent_options=_parent_options(db, exclude_ids=exclude_ids),
+        selected_parent_id=customer["parent_id"] if customer else None,
+    )
 
 
 @app.route("/customers/delete/<int:customer_id>", methods=["POST"])
@@ -411,6 +499,23 @@ def customer_detail(customer_id):
     ).fetchall()
     total_amount = sum(s["amount"] for s in sales)
 
+    ancestors = _customer_ancestors(db, customer)
+    children = db.execute(
+        "SELECT customers.*, COALESCE(SUM(sales.amount), 0) AS total_amount "
+        "FROM customers LEFT JOIN sales ON sales.customer_id = customers.id "
+        "WHERE customers.parent_id = ? GROUP BY customers.id ORDER BY customers.company_name",
+        (customer_id,),
+    ).fetchall()
+    descendant_ids = _customer_descendant_ids(db, customer_id)
+    org_total = None
+    if descendant_ids:
+        placeholders = ",".join("?" * len(descendant_ids))
+        descendant_total = db.execute(
+            f"SELECT COALESCE(SUM(amount), 0) FROM sales WHERE customer_id IN ({placeholders})",
+            list(descendant_ids),
+        ).fetchone()[0]
+        org_total = total_amount + descendant_total
+
     chart_view = request.args.get("chart", "yearly")
     if chart_view not in ("yearly", "monthly"):
         chart_view = "yearly"
@@ -431,6 +536,9 @@ def customer_detail(customer_id):
         total_amount=total_amount,
         chart_data=chart_data,
         chart_view=chart_view,
+        ancestors=ancestors,
+        children=children,
+        org_total=org_total,
     )
 
 

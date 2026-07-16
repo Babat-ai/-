@@ -378,7 +378,35 @@ main {
   font-size: 0.75rem;
 }
 
+.hint {
+  display: block;
+  color: #888;
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.breadcrumb {
+  color: #777;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.breadcrumb a {
+  color: #3d7dd6;
+  text-decoration: none;
+}
+
+.customer-name-cell {
+  display: inline-block;
+}
+
+.customer-name-cell .tree-branch {
+  color: #aaa;
+}
+
 .data-form input,
+.data-form select,
 .data-form textarea {
   display: block;
   width: 100%;
