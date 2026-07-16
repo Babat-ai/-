@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% block title %}{{ '編集' if customer else '新規登録' }} | 顧客管理{% endblock %}
 {% block content %}
-  <h2>{{ '顧客情報の編集' if customer else '新規顧客登録' }}</h2>
+  <h2>
+    {% if is_department %}
+      {{ '部署情報の編集' if customer else '新規部署登録' }}{% if parent_customer %} (所属: {{ parent_customer.company_name }}){% endif %}
+    {% else %}
+      {{ '顧客情報の編集' if customer else '新規顧客登録' }}
+    {% endif %}
+  </h2>
   <form method="post" class="data-form">
     <label>
-      会社名・団体名 <span class="required">必須</span>
+      {{ '部署名' if is_department else '会社名・団体名' }} <span class="required">必須</span>
       <input type="text" name="company_name" required value="{{ customer.company_name if customer else '' }}">
     </label>
     <label>
-      部署 (任意)
+      所属組織 (任意)
       <select name="parent_id">
         <option value="" {{ 'selected' if not selected_parent_id else '' }}>なし(独立した組織・企業)</option>
         {% for c, depth in parent_options %}
         <option value="{{ c.id }}" {{ 'selected' if c.id == selected_parent_id else '' }}>{{ '　' * depth }}{{ '└ ' if depth > 0 else '' }}{{ c.company_name }}</option>
         {% endfor %}
       </select>
-      <span class="hint">例: 「堺市」を選ぶと「堺市 環境局〇〇課」のように部署を分けて登録できます</span>
+      <span class="hint">例: 「堺市」を選ぶと「環境局」のように部署を分けて登録できます</span>
     </label>
     <label>
       電話番号

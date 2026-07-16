@@ -31,6 +31,7 @@
     <thead>
       <tr>
         <th>氏名</th>
+        <th>部署</th>
         <th>メールアドレス</th>
         <th>電話番号</th>
         <th>備考</th>
@@ -41,6 +42,7 @@
       {% for contact in contacts %}
       <tr>
         <td>{{ contact.name }}</td>
+        <td>{{ contact.department }}</td>
         <td>{{ contact.email }}</td>
         <td>{{ contact.phone }}</td>
         <td>{{ contact.memo }}</td>

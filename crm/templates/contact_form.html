@@ -8,6 +8,10 @@
       <input type="text" name="name" value="{{ contact.name if contact else '' }}">
     </label>
     <label>
+      部署
+      <input type="text" name="department" value="{{ contact.department if contact else '' }}" placeholder="例: 環境局">
+    </label>
+    <label>
       メールアドレス
       <input type="email" name="email" value="{{ contact.email if contact else '' }}">
     </label>

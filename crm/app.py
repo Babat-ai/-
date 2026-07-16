@@ -78,6 +78,12 @@ def init_db():
                 "INTEGER REFERENCES customers (id) ON DELETE SET NULL"
             )
             db.commit()
+        contact_columns = {
+            row["name"] for row in db.execute("PRAGMA table_info(customer_contacts)").fetchall()
+        }
+        if "department" not in contact_columns:
+            db.execute("ALTER TABLE customer_contacts ADD COLUMN department TEXT")
+            db.commit()
         if db.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
             db.execute(
                 "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)",
@@ -385,11 +391,18 @@ def new_customer():
         db.commit()
         return redirect(url_for("list_customers"))
     selected_parent_id = request.args.get("parent_id", type=int)
+    parent_customer = None
+    if selected_parent_id is not None:
+        parent_customer = db.execute(
+            "SELECT * FROM customers WHERE id = ?", (selected_parent_id,)
+        ).fetchone()
     return render_template(
         "customer_form.html",
         customer=None,
         parent_options=_parent_options(db),
         selected_parent_id=selected_parent_id,
+        is_department=parent_customer is not None,
+        parent_customer=parent_customer,
     )
 
 
@@ -420,11 +433,18 @@ def edit_customer(customer_id):
         "SELECT * FROM customers WHERE id = ?", (customer_id,)
     ).fetchone()
     exclude_ids = {customer_id} | _customer_descendant_ids(db, customer_id)
+    parent_customer = None
+    if customer and customer["parent_id"] is not None:
+        parent_customer = db.execute(
+            "SELECT * FROM customers WHERE id = ?", (customer["parent_id"],)
+        ).fetchone()
     return render_template(
         "customer_form.html",
         customer=customer,
         parent_options=_parent_options(db, exclude_ids=exclude_ids),
         selected_parent_id=customer["parent_id"] if customer else None,
+        is_department=parent_customer is not None,
+        parent_customer=parent_customer,
     )
 
 
@@ -587,11 +607,12 @@ def new_contact(customer_id):
         return redirect(url_for("list_customers"))
     if request.method == "POST":
         db.execute(
-            "INSERT INTO customer_contacts (customer_id, name, email, phone, memo) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO customer_contacts (customer_id, name, department, email, phone, memo) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
             (
                 customer_id,
                 request.form["name"],
+                request.form["department"],
                 request.form["email"],
                 request.form["phone"],
                 request.form["memo"],
@@ -612,10 +633,11 @@ def edit_contact(customer_id, contact_id):
         return redirect(url_for("list_customers"))
     if request.method == "POST":
         db.execute(
-            "UPDATE customer_contacts SET name = ?, email = ?, phone = ?, memo = ? "
-            "WHERE id = ? AND customer_id = ?",
+            "UPDATE customer_contacts SET name = ?, department = ?, email = ?, phone = ?, "
+            "memo = ? WHERE id = ? AND customer_id = ?",
             (
                 request.form["name"],
+                request.form["department"],
                 request.form["email"],
                 request.form["phone"],
                 request.form["memo"],

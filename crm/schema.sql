@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS customer_contacts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     customer_id INTEGER NOT NULL,
     name TEXT,
+    department TEXT,
     email TEXT,
     phone TEXT,
     memo TEXT,
