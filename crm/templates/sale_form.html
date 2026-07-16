@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ '編集' if sale else '新規登録' }} | 売上管理{% endblock %}
+{% block content %}
+  <h2>{{ '売上情報の編集' if sale else '新規売上登録' }}</h2>
+  <form method="post" class="data-form">
+    <label>
+      顧客 <span class="required">必須</span>
+      <select name="customer_id" required>
+        <option value="" disabled {{ 'selected' if not selected_customer_id else '' }}>選択してください</option>
+        {% for c in customers %}
+        <option value="{{ c.id }}" {{ 'selected' if c.id == selected_customer_id else '' }}>{{ c.company_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      品目 <span class="required">必須</span>
+      <input type="text" name="item_name" required value="{{ sale.item_name if sale else '' }}">
+    </label>
+    <label>
+      金額 (円) <span class="required">必須</span>
+      <input type="number" name="amount" min="0" required value="{{ sale.amount if sale else '' }}">
+    </label>
+    <label>
+      ステータス
+      <select name="status">
+        {% for st in statuses %}
+        <option value="{{ st }}" {{ 'selected' if sale and sale.status == st else '' }}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      日付 <span class="required">必須</span>
+      <input type="date" name="sale_date" required value="{{ sale.sale_date if sale else '' }}">
+    </label>
+    <label>
+      備考
+      <textarea name="memo" rows="4">{{ sale.memo if sale else '' }}</textarea>
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn">{{ '更新する' if sale else '登録する' }}</button>
+      <a href="{{ url_for('list_sales') }}">キャンセル</a>
+    </div>
+  </form>
+{% endblock %}

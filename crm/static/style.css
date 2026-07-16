@@ -13,6 +13,11 @@ body {
 .header {
   background: #2b2b2b;
   padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .header h1 {
@@ -24,10 +29,115 @@ body {
   text-decoration: none;
 }
 
+.nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav a {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.nav a:hover {
+  color: #fff;
+}
+
 main {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 32px auto;
   padding: 0 20px;
+}
+
+.section-title {
+  margin: 32px 0 16px;
+}
+
+.summary {
+  margin-bottom: 12px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.card-label {
+  color: #777;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.detail-list {
+  background: #fff;
+  padding: 20px 28px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  row-gap: 10px;
+}
+
+.detail-list dt {
+  color: #777;
+  font-size: 0.85rem;
+}
+
+.detail-list dd {
+  font-size: 0.95rem;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #3d7dd6;
+  border: 1px solid #3d7dd6;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  background: #eee;
+  color: #555;
+}
+
+.badge-見込み {
+  background: #fdf3d8;
+  color: #96751a;
+}
+
+.badge-受注 {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-請求済み {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.badge-入金済み {
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .toolbar {
@@ -46,7 +156,7 @@ main {
   cursor: pointer;
 }
 
-.customer-table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
@@ -55,15 +165,15 @@ main {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.customer-table th,
-.customer-table td {
+.data-table th,
+.data-table td {
   text-align: left;
   padding: 12px 16px;
   border-bottom: 1px solid #eee;
   font-size: 0.9rem;
 }
 
-.customer-table th {
+.data-table th {
   background: #efefef;
   font-weight: bold;
 }
@@ -91,7 +201,7 @@ main {
   color: #777;
 }
 
-.customer-form {
+.data-form {
   background: #fff;
   padding: 28px;
   border-radius: 8px;
@@ -99,7 +209,7 @@ main {
   max-width: 480px;
 }
 
-.customer-form label {
+.data-form label {
   display: block;
   margin-bottom: 16px;
   font-size: 0.9rem;
@@ -111,8 +221,8 @@ main {
   font-size: 0.75rem;
 }
 
-.customer-form input,
-.customer-form textarea {
+.data-form input,
+.data-form textarea {
   display: block;
   width: 100%;
   margin-top: 6px;

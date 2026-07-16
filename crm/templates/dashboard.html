@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード | 売上・顧客管理{% endblock %}
+{% block content %}
+  <div class="card-grid">
+    <div class="card">
+      <p class="card-label">顧客数</p>
+      <p class="card-value">{{ customer_count }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">売上件数</p>
+      <p class="card-value">{{ sale_count }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">売上合計</p>
+      <p class="card-value">&yen;{{ "{:,}".format(total_amount) }}</p>
+    </div>
+    <div class="card">
+      <p class="card-label">今月の売上</p>
+      <p class="card-value">&yen;{{ "{:,}".format(month_amount) }}</p>
+    </div>
+  </div>
+
+  <h3 class="section-title">最近の売上</h3>
+  {% if recent_sales %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>顧客</th>
+        <th>品目</th>
+        <th>金額</th>
+        <th>ステータス</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in recent_sales %}
+      <tr>
+        <td>{{ s.sale_date }}</td>
+        <td><a href="{{ url_for('customer_detail', customer_id=s.customer_id) }}">{{ s.company_name }}</a></td>
+        <td>{{ s.item_name }}</td>
+        <td>&yen;{{ "{:,}".format(s.amount) }}</td>
+        <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="toolbar"><a href="{{ url_for('list_sales') }}">売上一覧をすべて見る &rarr;</a></p>
+  {% else %}
+  <p class="empty">まだ売上が登録されていません。<a href="{{ url_for('new_sale') }}">最初の売上を登録する</a></p>
+  {% endif %}
+{% endblock %}

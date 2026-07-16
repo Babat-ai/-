@@ -7,3 +7,15 @@ CREATE TABLE IF NOT EXISTS customers (
     notes TEXT,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
+
+CREATE TABLE IF NOT EXISTS sales (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    item_name TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT '受注',
+    sale_date TEXT NOT NULL,
+    memo TEXT,
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+);

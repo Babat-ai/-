@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}売上一覧 | 売上・顧客管理{% endblock %}
+{% block content %}
+  <div class="toolbar">
+    <a href="{{ url_for('new_sale') }}" class="btn">+ 売上を登録</a>
+  </div>
+
+  {% if sales %}
+  <p class="summary">合計: &yen;{{ "{:,}".format(total_amount) }} ({{ sales|length }} 件)</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>顧客</th>
+        <th>品目</th>
+        <th>金額</th>
+        <th>ステータス</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sales %}
+      <tr>
+        <td>{{ s.sale_date }}</td>
+        <td><a href="{{ url_for('customer_detail', customer_id=s.customer_id) }}">{{ s.company_name }}</a></td>
+        <td>{{ s.item_name }}</td>
+        <td>&yen;{{ "{:,}".format(s.amount) }}</td>
+        <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
+        <td class="actions">
+          <a href="{{ url_for('edit_sale', sale_id=s.id) }}">編集</a>
+          <form method="post" action="{{ url_for('delete_sale', sale_id=s.id) }}"
+                onsubmit="return confirm('本当に削除しますか?');" class="inline-form">
+            <button type="submit" class="link-btn">削除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">まだ売上が登録されていません。</p>
+  {% endif %}
+{% endblock %}

@@ -1,18 +1,19 @@
 {% extends "base.html" %}
-{% block title %}顧客一覧 | 顧客管理{% endblock %}
+{% block title %}顧客一覧 | 売上・顧客管理{% endblock %}
 {% block content %}
   <div class="toolbar">
     <a href="{{ url_for('new_customer') }}" class="btn">+ 新規登録</a>
   </div>
 
   {% if customers %}
-  <table class="customer-table">
+  <table class="data-table">
     <thead>
       <tr>
         <th>会社名</th>
         <th>担当者</th>
         <th>メール</th>
         <th>電話番号</th>
+        <th>累計売上</th>
         <th>登録日</th>
         <th></th>
       </tr>
@@ -20,10 +21,11 @@
     <tbody>
       {% for c in customers %}
       <tr>
-        <td>{{ c.company_name }}</td>
+        <td><a href="{{ url_for('customer_detail', customer_id=c.id) }}">{{ c.company_name }}</a></td>
         <td>{{ c.contact_name }}</td>
         <td>{{ c.email }}</td>
         <td>{{ c.phone }}</td>
+        <td>&yen;{{ "{:,}".format(c.total_amount) }}</td>
         <td>{{ c.created_at }}</td>
         <td class="actions">
           <a href="{{ url_for('edit_customer', customer_id=c.id) }}">編集</a>
