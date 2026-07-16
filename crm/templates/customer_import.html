@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Excelインポート | 売上・顧客管理{% endblock %}
+{% block content %}
+  <h2>Excelから顧客・売上をインポート</h2>
+  <div class="data-form">
+    <p class="hint" style="margin-bottom: 16px;">
+      「行区分名称」「担当者名」ヘッダーを持つ月別売上シート(.xlsx)を読み込みます。
+      顧客・部署は既存の同名データがあれば再利用され、売上は同じ顧客・同じ月のものが既にあればスキップされるので、
+      同じファイルを再アップロードしても重複登録されません。
+    </p>
+    <form method="post" enctype="multipart/form-data">
+      <label>
+        Excelファイル (.xlsx)
+        <input type="file" name="file" accept=".xlsx" required>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn">読み込んで内容を確認</button>
+        <a href="{{ url_for('list_customers') }}">キャンセル</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}インポート完了 | 売上・顧客管理{% endblock %}
+{% block content %}
+  <h2>インポートが完了しました</h2>
+  <div class="card-grid">
+    <div class="card">
+      <p class="card-label">新規作成した顧客・部署</p>
+      <p class="card-value">{{ stats.customers_created }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">既存を再利用した顧客・部署</p>
+      <p class="card-value">{{ stats.customers_reused }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">新規登録した売上</p>
+      <p class="card-value">{{ stats.sales_created }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">重複でスキップした売上</p>
+      <p class="card-value">{{ stats.sales_skipped }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">登録した売上の合計</p>
+      <p class="card-value">&yen;{{ "{:,}".format(stats.total_amount) }}</p>
+    </div>
+  </div>
+  <div class="form-actions" style="margin-top: 20px;">
+    <a href="{{ url_for('list_customers') }}" class="btn">顧客一覧を見る</a>
+    <a href="{{ url_for('index') }}">ダッシュボードに戻る</a>
+  </div>
+{% endblock %}

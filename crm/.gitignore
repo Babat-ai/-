@@ -1,4 +1,5 @@
 customers.db
 .secret_key
+tmp_imports/
 __pycache__/
 venv/

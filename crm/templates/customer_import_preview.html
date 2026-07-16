@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}インポート内容の確認 | 売上・顧客管理{% endblock %}
+{% block content %}
+  <h2>インポート内容の確認</h2>
+  <p class="hint" style="margin-bottom: 16px;">読み込んだシート: {{ sheet_names | join(', ') }}</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <p class="card-label">顧客・部署数</p>
+      <p class="card-value">{{ summary.customer_count }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">売上データ数</p>
+      <p class="card-value">{{ summary.sales_count }} 件</p>
+    </div>
+    <div class="card">
+      <p class="card-label">合計金額</p>
+      <p class="card-value">&yen;{{ "{:,}".format(summary.total_amount) }}</p>
+    </div>
+  </div>
+
+  <p class="hint" style="margin: 16px 0;">
+    今日より前の月は「入金済み」、今日より後の月は「見込み」として登録されます。
+    既に同じ顧客・同じ月のデータが登録済みの場合はスキップされます。内容に問題なければ実行してください。
+  </p>
+
+  <form method="post" action="{{ url_for('confirm_import_customers') }}">
+    <input type="hidden" name="token" value="{{ token }}">
+    <div class="form-actions">
+      <button type="submit" class="btn">この内容でインポートを実行する</button>
+      <a href="{{ url_for('import_customers') }}">キャンセル</a>
+    </div>
+  </form>
+{% endblock %}

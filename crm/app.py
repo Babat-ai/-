@@ -1,6 +1,8 @@
 import io
+import re
 import secrets
 import sqlite3
+import uuid
 from datetime import date
 from functools import wraps
 from pathlib import Path
@@ -17,13 +19,16 @@ from flask import (
     session,
     url_for,
 )
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from werkzeug.security import check_password_hash, generate_password_hash
+
+import import_excel
 
 BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "customers.db"
 SECRET_KEY_PATH = BASE_DIR / ".secret_key"
+TMP_IMPORT_DIR = BASE_DIR / "tmp_imports"
 
 SALE_STATUSES = ["見込み", "受注", "請求済み", "入金済み"]
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -77,6 +82,9 @@ def init_db():
                 "ALTER TABLE customers ADD COLUMN parent_id "
                 "INTEGER REFERENCES customers (id) ON DELETE SET NULL"
             )
+            db.commit()
+        if "internal_rep" not in columns:
+            db.execute("ALTER TABLE customers ADD COLUMN internal_rep TEXT")
             db.commit()
         contact_columns = {
             row["name"] for row in db.execute("PRAGMA table_info(customer_contacts)").fetchall()
@@ -379,12 +387,13 @@ def new_customer():
     if request.method == "POST":
         parent_id = request.form.get("parent_id") or None
         db.execute(
-            "INSERT INTO customers (company_name, parent_id, phone, notes) "
-            "VALUES (?, ?, ?, ?)",
+            "INSERT INTO customers (company_name, parent_id, phone, internal_rep, notes) "
+            "VALUES (?, ?, ?, ?, ?)",
             (
                 request.form["company_name"],
                 parent_id,
                 request.form["phone"],
+                request.form["internal_rep"],
                 request.form["notes"],
             ),
         )
@@ -417,12 +426,13 @@ def edit_customer(customer_id):
                 flash("自分自身、または自分の下部組織を親には設定できません。", "error")
                 return redirect(url_for("edit_customer", customer_id=customer_id))
         db.execute(
-            "UPDATE customers SET company_name = ?, parent_id = ?, phone = ?, notes = ? "
-            "WHERE id = ?",
+            "UPDATE customers SET company_name = ?, parent_id = ?, phone = ?, "
+            "internal_rep = ?, notes = ? WHERE id = ?",
             (
                 request.form["company_name"],
                 parent_id,
                 request.form["phone"],
+                request.form["internal_rep"],
                 request.form["notes"],
                 customer_id,
             ),
@@ -454,6 +464,56 @@ def delete_customer(customer_id):
     db.execute("DELETE FROM customers WHERE id = ?", (customer_id,))
     db.commit()
     return redirect(url_for("list_customers"))
+
+
+@app.route("/customers/import", methods=["GET", "POST"])
+@admin_required
+def import_customers():
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or not file.filename:
+            flash("Excelファイルを選択してください。", "error")
+            return redirect(url_for("import_customers"))
+        TMP_IMPORT_DIR.mkdir(exist_ok=True)
+        token = uuid.uuid4().hex
+        tmp_path = TMP_IMPORT_DIR / f"{token}.xlsx"
+        file.save(tmp_path)
+        try:
+            wb = load_workbook(tmp_path, data_only=True)
+            sheet_names, rows = import_excel.parse_workbook(wb)
+        except Exception as exc:
+            tmp_path.unlink(missing_ok=True)
+            flash(f"読み込みに失敗しました: {exc}", "error")
+            return redirect(url_for("import_customers"))
+        summary = import_excel.summarize(rows)
+        return render_template(
+            "customer_import_preview.html",
+            sheet_names=sheet_names,
+            summary=summary,
+            token=token,
+        )
+    return render_template("customer_import.html")
+
+
+@app.route("/customers/import/confirm", methods=["POST"])
+@admin_required
+def confirm_import_customers():
+    token = request.form.get("token", "")
+    tmp_path = TMP_IMPORT_DIR / f"{token}.xlsx"
+    if not re.fullmatch(r"[0-9a-f]{32}", token) or not tmp_path.exists():
+        flash("インポート内容の有効期限が切れました。もう一度アップロードしてください。", "error")
+        return redirect(url_for("import_customers"))
+    db = get_db()
+    try:
+        wb = load_workbook(tmp_path, data_only=True)
+        _sheet_names, rows = import_excel.parse_workbook(wb)
+        stats = import_excel.import_rows(db, rows)
+    except Exception as exc:
+        flash(f"インポートに失敗しました: {exc}", "error")
+        return redirect(url_for("import_customers"))
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    return render_template("customer_import_done.html", stats=stats)
 
 
 def _yearly_chart_data(rows):

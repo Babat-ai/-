@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS customers (
     contact_name TEXT,
     email TEXT,
     phone TEXT,
+    internal_rep TEXT,
     notes TEXT,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );

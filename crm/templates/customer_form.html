@@ -28,6 +28,10 @@
       <input type="text" name="phone" value="{{ customer.phone if customer else '' }}">
     </label>
     <label>
+      社内担当者
+      <input type="text" name="internal_rep" value="{{ customer.internal_rep if customer else '' }}" placeholder="例: 馬場">
+    </label>
+    <label>
       備考
       <textarea name="notes" rows="4">{{ customer.notes if customer else '' }}</textarea>
     </label>
