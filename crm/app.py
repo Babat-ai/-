@@ -122,6 +122,21 @@ def delete_customer(customer_id):
     return redirect(url_for("list_customers"))
 
 
+def _yearly_chart_data(rows):
+    yearly_totals = {int(r["year"]): r["total"] for r in rows if r["year"]}
+    if not yearly_totals:
+        return []
+    max_total = max(yearly_totals.values()) or 1
+    return [
+        {
+            "year": year,
+            "total": yearly_totals.get(year, 0),
+            "pct": round(yearly_totals.get(year, 0) / max_total * 100),
+        }
+        for year in range(min(yearly_totals), max(yearly_totals) + 1)
+    ]
+
+
 @app.route("/customers/<int:customer_id>")
 def customer_detail(customer_id):
     db = get_db()
@@ -135,8 +150,18 @@ def customer_detail(customer_id):
         (customer_id,),
     ).fetchall()
     total_amount = sum(s["amount"] for s in sales)
+    yearly_rows = db.execute(
+        "SELECT strftime('%Y', sale_date) AS year, SUM(amount) AS total "
+        "FROM sales WHERE customer_id = ? GROUP BY year ORDER BY year",
+        (customer_id,),
+    ).fetchall()
+    yearly_sales = _yearly_chart_data(yearly_rows)
     return render_template(
-        "customer_detail.html", customer=customer, sales=sales, total_amount=total_amount
+        "customer_detail.html",
+        customer=customer,
+        sales=sales,
+        total_amount=total_amount,
+        yearly_sales=yearly_sales,
     )
 
 

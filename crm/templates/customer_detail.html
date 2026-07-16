@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "_macros.html" as macros %}
 {% block title %}{{ customer.company_name }} | 顧客詳細{% endblock %}
 {% block content %}
   <div class="toolbar">
@@ -13,6 +14,23 @@
     <dt>備考</dt><dd>{{ customer.notes or '-' }}</dd>
   </dl>
   <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary">顧客情報を編集</a>
+
+  {% if yearly_sales %}
+  <h3 class="section-title">年別売上</h3>
+  <div class="chart-card">
+    <div class="chart">
+      {% for row in yearly_sales %}
+      <div class="chart-col">
+        <div class="chart-bar-wrap">
+          <span class="chart-bar-value">&yen;{{ "{:,}".format(row.total) }}</span>
+          <div class="chart-bar" style="height: {{ row.pct }}%;"></div>
+        </div>
+        <div class="chart-bar-label">{{ row.year }}年</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <h3 class="section-title">売上履歴 (累計 &yen;{{ "{:,}".format(total_amount) }})</h3>
   <div class="toolbar">
@@ -37,13 +55,7 @@
         <td>{{ s.item_name }}</td>
         <td>&yen;{{ "{:,}".format(s.amount) }}</td>
         <td><span class="badge badge-{{ s.status }}">{{ s.status }}</span></td>
-        <td class="actions">
-          <a href="{{ url_for('edit_sale', sale_id=s.id) }}">編集</a>
-          <form method="post" action="{{ url_for('delete_sale', sale_id=s.id) }}"
-                onsubmit="return confirm('本当に削除しますか?');" class="inline-form">
-            <button type="submit" class="link-btn">削除</button>
-          </form>
-        </td>
+        <td>{{ macros.action_buttons(url_for('edit_sale', sale_id=s.id), url_for('delete_sale', sale_id=s.id)) }}</td>
       </tr>
       {% endfor %}
     </tbody>

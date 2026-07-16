@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "_macros.html" as macros %}
 {% block title %}顧客一覧 | 売上・顧客管理{% endblock %}
 {% block content %}
   <div class="toolbar">
@@ -27,13 +28,7 @@
         <td>{{ c.phone }}</td>
         <td>&yen;{{ "{:,}".format(c.total_amount) }}</td>
         <td>{{ c.created_at }}</td>
-        <td class="actions">
-          <a href="{{ url_for('edit_customer', customer_id=c.id) }}">編集</a>
-          <form method="post" action="{{ url_for('delete_customer', customer_id=c.id) }}"
-                onsubmit="return confirm('本当に削除しますか?');" class="inline-form">
-            <button type="submit" class="link-btn">削除</button>
-          </form>
-        </td>
+        <td>{{ macros.action_buttons(url_for('edit_customer', customer_id=c.id), url_for('delete_customer', customer_id=c.id)) }}</td>
       </tr>
       {% endfor %}
     </tbody>

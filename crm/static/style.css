@@ -180,24 +180,96 @@ main {
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .inline-form {
-  display: inline;
+  display: inline-flex;
 }
 
-.link-btn {
-  background: none;
-  border: none;
-  color: #d64545;
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #777;
   cursor: pointer;
+  text-decoration: none;
   padding: 0;
-  font-size: 0.9rem;
-  text-decoration: underline;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.icon-btn-edit:hover,
+.icon-btn-edit:focus-visible {
+  background: #eaf1fc;
+  border-color: #3d7dd6;
+  color: #3d7dd6;
+}
+
+.icon-btn-delete:hover,
+.icon-btn-delete:focus-visible {
+  background: #fdecec;
+  border-color: #d64545;
+  color: #d64545;
 }
 
 .empty {
+  color: #777;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px 28px 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  overflow-x: auto;
+}
+
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+}
+
+.chart-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 160px;
+  width: 100%;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.chart-bar-value {
+  font-size: 0.75rem;
+  color: #555;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.chart-bar {
+  width: 36px;
+  background: linear-gradient(180deg, #5b9bf0, #2f66c2);
+  border-radius: 4px 4px 0 0;
+  min-height: 0;
+}
+
+.chart-bar-label {
+  margin-top: 8px;
+  font-size: 0.8rem;
   color: #777;
 }
 
