@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}アカウント | 売上・顧客管理{% endblock %}
+{% block content %}
+  <h2>パスワード変更 ({{ current_user.username }})</h2>
+  {% if error %}<p class="flash flash-error">{{ error }}</p>{% endif %}
+  <form method="post" class="data-form">
+    <label>
+      現在のパスワード <span class="required">必須</span>
+      <input type="password" name="current_password" required>
+    </label>
+    <label>
+      新しいパスワード <span class="required">必須</span>
+      <input type="password" name="new_password" required>
+    </label>
+    <label>
+      新しいパスワード(確認) <span class="required">必須</span>
+      <input type="password" name="confirm_password" required>
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn">変更する</button>
+    </div>
+  </form>
+{% endblock %}

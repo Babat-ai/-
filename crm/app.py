@@ -1,19 +1,53 @@
 import io
+import secrets
 import sqlite3
 from datetime import date
+from functools import wraps
 from pathlib import Path
 
-from flask import Flask, g, redirect, render_template, request, send_file, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "customers.db"
+SECRET_KEY_PATH = BASE_DIR / ".secret_key"
 
 SALE_STATUSES = ["見込み", "受注", "請求済み", "入金済み"]
 XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
+# Initial admin account, seeded into the users table on first run.
+# Only the hash is stored here, never the plain-text password.
+ADMIN_USERNAME = "babat7"
+ADMIN_PASSWORD_HASH = (
+    "scrypt:32768:8:1$DL27jBzevT4v2SiG$5015aa6ad58f09d73eba700fe7177df3c04b9552bb"
+    "14cde76d26afb0b8a42502f65fc63df0b579cb5fe432db69b447ad1746d3d5d30962fce18902"
+    "20a39aeed6"
+)
+
+
+def _load_secret_key():
+    if SECRET_KEY_PATH.exists():
+        return SECRET_KEY_PATH.read_text().strip()
+    key = secrets.token_hex(32)
+    SECRET_KEY_PATH.write_text(key)
+    return key
+
+
 app = Flask(__name__)
+app.secret_key = _load_secret_key()
 
 
 def get_db():
@@ -37,6 +71,164 @@ def init_db():
         with open(BASE_DIR / "schema.sql") as f:
             db.executescript(f.read())
         db.commit()
+        if db.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0:
+            db.execute(
+                "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)",
+                (ADMIN_USERNAME, ADMIN_PASSWORD_HASH),
+            )
+            db.commit()
+
+
+def _safe_next_url(url):
+    if url and url.startswith("/") and not url.startswith("//"):
+        return url
+    return url_for("index")
+
+
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not g.user or not g.user["is_admin"]:
+            abort(403)
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+@app.before_request
+def load_current_user():
+    g.user = None
+    user_id = session.get("user_id")
+    if user_id is not None:
+        db = get_db()
+        g.user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        if g.user is None:
+            session.clear()
+    if request.endpoint not in ("login", "static") and g.user is None:
+        return redirect(url_for("login", next=request.path))
+
+
+@app.context_processor
+def inject_current_user():
+    return {"current_user": g.get("user")}
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        db = get_db()
+        user = db.execute(
+            "SELECT * FROM users WHERE username = ?", (request.form["username"],)
+        ).fetchone()
+        next_url = request.form.get("next", "")
+        if user and check_password_hash(user["password_hash"], request.form["password"]):
+            session.clear()
+            session["user_id"] = user["id"]
+            return redirect(_safe_next_url(next_url))
+        return render_template(
+            "login.html",
+            error="ユーザー名またはパスワードが正しくありません。",
+            next=next_url,
+        ), 401
+    return render_template("login.html", error=None, next=request.args.get("next", ""))
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/account", methods=["GET", "POST"])
+def account():
+    error = None
+    if request.method == "POST":
+        current_password = request.form["current_password"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+        if not check_password_hash(g.user["password_hash"], current_password):
+            error = "現在のパスワードが正しくありません。"
+        elif not new_password:
+            error = "新しいパスワードを入力してください。"
+        elif new_password != confirm_password:
+            error = "新しいパスワード(確認)が一致しません。"
+        if error:
+            return render_template("account.html", error=error)
+        db = get_db()
+        db.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (generate_password_hash(new_password), g.user["id"]),
+        )
+        db.commit()
+        flash("パスワードを変更しました。", "success")
+        return redirect(url_for("account"))
+    return render_template("account.html", error=None)
+
+
+@app.route("/users")
+@admin_required
+def list_users():
+    db = get_db()
+    users = db.execute("SELECT * FROM users ORDER BY id").fetchall()
+    return render_template("user_list.html", users=users)
+
+
+@app.route("/users/new", methods=["GET", "POST"])
+@admin_required
+def new_user():
+    if request.method == "POST":
+        db = get_db()
+        username = request.form["username"].strip()
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        is_admin = 1 if request.form.get("is_admin") else 0
+        error = None
+        if not username or not password:
+            error = "ユーザー名とパスワードを入力してください。"
+        elif password != confirm_password:
+            error = "パスワード(確認)が一致しません。"
+        elif db.execute(
+            "SELECT 1 FROM users WHERE username = ?", (username,)
+        ).fetchone():
+            error = "そのユーザー名は既に使われています。"
+        if error:
+            return render_template(
+                "user_form.html", error=error, username=username, is_admin=is_admin
+            )
+        db.execute(
+            "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+            (username, generate_password_hash(password), is_admin),
+        )
+        db.commit()
+        flash("ユーザーを追加しました。", "success")
+        return redirect(url_for("list_users"))
+    return render_template("user_form.html", error=None, username="", is_admin=False)
+
+
+@app.route("/users/delete/<int:user_id>", methods=["POST"])
+@admin_required
+def delete_user(user_id):
+    db = get_db()
+    if user_id == g.user["id"]:
+        flash("自分自身は削除できません。", "error")
+        return redirect(url_for("list_users"))
+    target = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if target and target["is_admin"]:
+        admin_count = db.execute(
+            "SELECT COUNT(*) FROM users WHERE is_admin = 1"
+        ).fetchone()[0]
+        if admin_count <= 1:
+            flash("最後の管理者は削除できません。", "error")
+            return redirect(url_for("list_users"))
+    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    flash("ユーザーを削除しました。", "success")
+    return redirect(url_for("list_users"))
+
+
+@app.errorhandler(403)
+def forbidden(exc):
+    return render_template("error.html", message="この操作を行う権限がありません。"), 403
 
 
 @app.route("/")

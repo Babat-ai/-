@@ -9,13 +9,29 @@
 <body>
   <header class="header">
     <h1><a href="{{ url_for('index') }}">売上・顧客管理</a></h1>
+    {% if current_user %}
     <nav class="nav">
       <a href="{{ url_for('index') }}">ダッシュボード</a>
       <a href="{{ url_for('list_customers') }}">顧客一覧</a>
       <a href="{{ url_for('list_sales') }}">売上一覧</a>
+      {% if current_user.is_admin %}
+      <a href="{{ url_for('list_users') }}">ユーザー管理</a>
+      {% endif %}
+      <a href="{{ url_for('account') }}">{{ current_user.username }}</a>
+      <a href="{{ url_for('logout') }}">ログアウト</a>
     </nav>
+    {% endif %}
   </header>
   <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-list">
+        {% for category, message in messages %}
+        <p class="flash flash-{{ category }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
   </main>
 </body>

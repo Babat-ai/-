@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}ユーザー管理 | 売上・顧客管理{% endblock %}
+{% block content %}
+  <div class="toolbar">
+    <a href="{{ url_for('new_user') }}" class="btn">+ ユーザーを追加</a>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ユーザー名</th>
+        <th>権限</th>
+        <th>登録日</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ '管理者' if u.is_admin else '一般' }}</td>
+        <td>{{ u.created_at }}</td>
+        <td>
+          {% if u.id != current_user.id %}
+          {{ macros.delete_button(url_for('delete_user', user_id=u.id)) }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
