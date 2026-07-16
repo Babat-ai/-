@@ -15,24 +15,37 @@
   </dl>
   <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-secondary">顧客情報を編集</a>
 
-  {% if yearly_sales %}
-  <h3 class="section-title">年別売上</h3>
+  <div class="section-header">
+    <h3 class="section-title">売上グラフ</h3>
+    <div class="chart-toggle">
+      <a href="{{ url_for('customer_detail', customer_id=customer.id, chart='yearly') }}"
+         class="toggle-btn {{ 'active' if chart_view == 'yearly' else '' }}">年別</a>
+      <a href="{{ url_for('customer_detail', customer_id=customer.id, chart='monthly') }}"
+         class="toggle-btn {{ 'active' if chart_view == 'monthly' else '' }}">月別(直近12ヶ月)</a>
+    </div>
+  </div>
+  {% if chart_data %}
   <div class="chart-card">
     <div class="chart">
-      {% for row in yearly_sales %}
+      {% for row in chart_data %}
       <div class="chart-col">
         <div class="chart-bar-wrap">
           <span class="chart-bar-value">&yen;{{ "{:,}".format(row.total) }}</span>
           <div class="chart-bar" style="height: {{ row.pct }}%;"></div>
         </div>
-        <div class="chart-bar-label">{{ row.year }}年</div>
+        <div class="chart-bar-label">{{ row.year if chart_view == 'yearly' else row.label }}{{ '年' if chart_view == 'yearly' else '' }}</div>
       </div>
       {% endfor %}
     </div>
   </div>
+  {% else %}
+  <p class="empty">まだ売上が登録されていません。</p>
   {% endif %}
 
-  <h3 class="section-title">売上履歴 (累計 &yen;{{ "{:,}".format(total_amount) }})</h3>
+  <div class="section-header">
+    <h3 class="section-title">売上履歴 (累計 &yen;{{ "{:,}".format(total_amount) }})</h3>
+    <a href="{{ url_for('export_customer_sales', customer_id=customer.id) }}" class="btn btn-secondary">Excelでダウンロード</a>
+  </div>
   <div class="toolbar">
     <a href="{{ url_for('new_sale', customer_id=customer.id) }}" class="btn">+ 売上を登録</a>
   </div>
@@ -42,7 +55,7 @@
     <thead>
       <tr>
         <th>日付</th>
-        <th>品目</th>
+        <th>案件名</th>
         <th>金額</th>
         <th>ステータス</th>
         <th></th>

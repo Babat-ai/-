@@ -20,6 +20,23 @@
     </div>
   </div>
 
+  <h3 class="section-title">月別売上 (直近12ヶ月・全顧客)</h3>
+  {% if monthly_sales %}
+  <div class="chart-card">
+    <div class="chart">
+      {% for row in monthly_sales %}
+      <div class="chart-col">
+        <div class="chart-bar-wrap">
+          <span class="chart-bar-value">&yen;{{ "{:,}".format(row.total) }}</span>
+          <div class="chart-bar" style="height: {{ row.pct }}%;"></div>
+        </div>
+        <div class="chart-bar-label">{{ row.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <h3 class="section-title">最近の売上</h3>
   {% if recent_sales %}
   <table class="data-table">
@@ -27,7 +44,7 @@
       <tr>
         <th>日付</th>
         <th>顧客</th>
-        <th>品目</th>
+        <th>案件名</th>
         <th>金額</th>
         <th>ステータス</th>
       </tr>

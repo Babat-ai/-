@@ -4,6 +4,7 @@
 {% block content %}
   <div class="toolbar">
     <a href="{{ url_for('new_sale') }}" class="btn">+ 売上を登録</a>
+    <a href="{{ url_for('export_sales') }}" class="btn btn-secondary">Excelでダウンロード</a>
   </div>
 
   {% if sales %}
@@ -13,7 +14,7 @@
       <tr>
         <th>日付</th>
         <th>顧客</th>
-        <th>品目</th>
+        <th>案件名</th>
         <th>金額</th>
         <th>ステータス</th>
         <th></th>
