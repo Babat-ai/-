@@ -1,0 +1,58 @@
+name: Osaka Bidding Watcher
+
+on:
+  schedule:
+    # 毎日 08:00 JST (= 23:00 UTC 前日) に実行
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: osaka-bidding
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-notify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: osaka-bidding
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
+
+      - name: Scrape all municipalities
+        run: python fetch_all.py
+
+      - name: Send daily digest email
+        continue-on-error: true
+        env:
+          SMTP_HOST: ${{ secrets.OSAKA_BIDDING_SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.OSAKA_BIDDING_SMTP_PORT }}
+          SMTP_USER: ${{ secrets.OSAKA_BIDDING_SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.OSAKA_BIDDING_SMTP_PASSWORD }}
+          MAIL_FROM: ${{ secrets.OSAKA_BIDDING_MAIL_FROM }}
+          MAIL_TO: ${{ secrets.OSAKA_BIDDING_MAIL_TO }}
+        run: python notify_email.py
+
+      - name: Build dashboard
+        run: python dashboard.py
+
+      - name: Commit updated data and dashboard
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/bids.db ../docs/osaka-bidding
+          git commit -m "chore(osaka-bidding): update bid data $(date -u +%Y-%m-%d)" || echo "Nothing to commit"
+          git push
