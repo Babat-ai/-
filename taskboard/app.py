@@ -7,8 +7,8 @@ from flask import Flask, abort, g, jsonify, redirect, render_template, request, 
 BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "taskboard.db"
 
-DEFAULT_CATEGORIES = ["やりたいこと", "やるべきこと", "よくわからないけどやらなきゃいけないこと"]
 VALID_COLORS = {"yellow", "pink", "blue", "green", "orange", "purple"}
+STARTER_NOTE = "ここにやりたいこと・やるべきことを書き出そう。付箋の「+」でサブタスクを線でつなげられるよ。"
 
 app = Flask(__name__)
 
@@ -44,23 +44,15 @@ def get_board_or_404(board_id):
     return board
 
 
-def get_category_or_404(category_id):
-    db = get_db()
-    category = db.execute(
-        "SELECT * FROM categories WHERE id = ?", (category_id,)
-    ).fetchone()
-    if category is None:
-        abort(404)
-    return category
-
-
 def note_to_dict(note):
     return {
         "id": note["id"],
-        "category_id": note["category_id"],
+        "board_id": note["board_id"],
+        "parent_id": note["parent_id"],
         "text": note["text"],
         "color": note["color"],
-        "position": note["position"],
+        "x": note["x"],
+        "y": note["y"],
     }
 
 
@@ -76,11 +68,11 @@ def new_board():
     db.execute(
         "INSERT INTO boards (id, name) VALUES (?, ?)", (board_id, "マイタスクボード")
     )
-    for position, name in enumerate(DEFAULT_CATEGORIES):
-        db.execute(
-            "INSERT INTO categories (board_id, name, position) VALUES (?, ?, ?)",
-            (board_id, name, position),
-        )
+    db.execute(
+        "INSERT INTO notes (board_id, parent_id, text, color, x, y) "
+        "VALUES (?, NULL, ?, 'yellow', 200, 160)",
+        (board_id, STARTER_NOTE),
+    )
     db.commit()
     return redirect(url_for("view_board", board_id=board_id))
 
@@ -89,91 +81,40 @@ def new_board():
 def view_board(board_id):
     board = get_board_or_404(board_id)
     db = get_db()
-    categories = db.execute(
-        "SELECT * FROM categories WHERE board_id = ? ORDER BY position, id",
-        (board_id,),
-    ).fetchall()
     notes = db.execute(
-        """
-        SELECT notes.* FROM notes
-        JOIN categories ON categories.id = notes.category_id
-        WHERE categories.board_id = ?
-        ORDER BY notes.position, notes.id
-        """,
-        (board_id,),
+        "SELECT * FROM notes WHERE board_id = ? ORDER BY id", (board_id,)
     ).fetchall()
-
-    notes_by_category = {}
-    for note in notes:
-        notes_by_category.setdefault(note["category_id"], []).append(note)
-
     return render_template(
         "board.html",
         board=board,
-        categories=categories,
-        notes_by_category=notes_by_category,
+        notes=[note_to_dict(n) for n in notes],
         colors=sorted(VALID_COLORS),
     )
 
 
-@app.route("/api/boards/<board_id>/categories", methods=["POST"])
-def add_category(board_id):
+@app.route("/api/boards/<board_id>/notes", methods=["POST"])
+def add_note(board_id):
     get_board_or_404(board_id)
-    name = (request.json or {}).get("name", "").strip()
-    if not name:
-        return jsonify({"error": "name is required"}), 400
-    db = get_db()
-    row = db.execute(
-        "SELECT COALESCE(MAX(position), -1) + 1 AS next_pos FROM categories WHERE board_id = ?",
-        (board_id,),
-    ).fetchone()
-    cur = db.execute(
-        "INSERT INTO categories (board_id, name, position) VALUES (?, ?, ?)",
-        (board_id, name, row["next_pos"]),
-    )
-    db.commit()
-    return jsonify({"id": cur.lastrowid, "name": name, "position": row["next_pos"]})
-
-
-@app.route("/api/categories/<int:category_id>", methods=["PATCH"])
-def rename_category(category_id):
-    get_category_or_404(category_id)
-    name = (request.json or {}).get("name", "").strip()
-    if not name:
-        return jsonify({"error": "name is required"}), 400
-    db = get_db()
-    db.execute("UPDATE categories SET name = ? WHERE id = ?", (name, category_id))
-    db.commit()
-    return jsonify({"id": category_id, "name": name})
-
-
-@app.route("/api/categories/<int:category_id>", methods=["DELETE"])
-def delete_category(category_id):
-    get_category_or_404(category_id)
-    db = get_db()
-    db.execute("DELETE FROM categories WHERE id = ?", (category_id,))
-    db.commit()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/categories/<int:category_id>/notes", methods=["POST"])
-def add_note(category_id):
-    get_category_or_404(category_id)
     data = request.json or {}
     text = data.get("text", "").strip()
     color = data.get("color", "yellow")
-    if not text:
-        return jsonify({"error": "text is required"}), 400
     if color not in VALID_COLORS:
         color = "yellow"
+    x = float(data.get("x", 0))
+    y = float(data.get("y", 0))
+    parent_id = data.get("parent_id")
+
     db = get_db()
-    row = db.execute(
-        "SELECT COALESCE(MAX(position), -1) + 1 AS next_pos FROM notes WHERE category_id = ?",
-        (category_id,),
-    ).fetchone()
+    if parent_id is not None:
+        parent = db.execute(
+            "SELECT * FROM notes WHERE id = ? AND board_id = ?", (parent_id, board_id)
+        ).fetchone()
+        if parent is None:
+            return jsonify({"error": "parent not found"}), 400
+
     cur = db.execute(
-        "INSERT INTO notes (category_id, text, color, position) VALUES (?, ?, ?, ?)",
-        (category_id, text, color, row["next_pos"]),
+        "INSERT INTO notes (board_id, parent_id, text, color, x, y) VALUES (?, ?, ?, ?, ?, ?)",
+        (board_id, parent_id, text, color, x, y),
     )
     db.commit()
     note = db.execute("SELECT * FROM notes WHERE id = ?", (cur.lastrowid,)).fetchone()
@@ -191,9 +132,11 @@ def update_note(note_id):
     color = data.get("color", note["color"])
     if color not in VALID_COLORS:
         color = note["color"]
+    x = float(data.get("x", note["x"]))
+    y = float(data.get("y", note["y"]))
     db.execute(
-        "UPDATE notes SET text = ?, color = ? WHERE id = ?",
-        (text, color, note_id),
+        "UPDATE notes SET text = ?, color = ?, x = ?, y = ? WHERE id = ?",
+        (text, color, x, y, note_id),
     )
     db.commit()
     updated = db.execute("SELECT * FROM notes WHERE id = ?", (note_id,)).fetchone()
@@ -207,20 +150,6 @@ def delete_note(note_id):
     if note is None:
         abort(404)
     db.execute("DELETE FROM notes WHERE id = ?", (note_id,))
-    db.commit()
-    return jsonify({"ok": True})
-
-
-@app.route("/api/categories/<int:category_id>/reorder", methods=["POST"])
-def reorder_notes(category_id):
-    get_category_or_404(category_id)
-    note_ids = (request.json or {}).get("order", [])
-    db = get_db()
-    for position, note_id in enumerate(note_ids):
-        db.execute(
-            "UPDATE notes SET category_id = ?, position = ? WHERE id = ?",
-            (category_id, position, note_id),
-        )
     db.commit()
     return jsonify({"ok": True})
 

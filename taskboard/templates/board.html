@@ -10,54 +10,33 @@
     <button id="copy-url-btn" class="btn btn-small" type="button">リンクをコピー</button>
   </div>
 
-  <div class="columns" id="columns">
-    {% for category in categories %}
-    <div class="column" data-category-id="{{ category.id }}">
-      <div class="column-header">
-        <h2 class="column-title" data-category-id="{{ category.id }}">{{ category.name }}</h2>
-        <button class="icon-btn delete-column-btn" data-category-id="{{ category.id }}" title="カテゴリを削除" type="button">&times;</button>
-      </div>
-
-      <div class="note-list" data-category-id="{{ category.id }}">
-        {% for note in notes_by_category.get(category.id, []) %}
-        <div class="note note-{{ note.color }}" draggable="true" data-note-id="{{ note.id }}">
-          <div class="note-text" contenteditable="true" data-note-id="{{ note.id }}">{{ note.text }}</div>
-          <div class="note-footer">
-            <div class="color-dots">
-              {% for c in colors %}
-              <button class="dot dot-{{ c }}{% if c == note.color %} selected{% endif %}" data-note-id="{{ note.id }}" data-color="{{ c }}" title="{{ c }}" type="button"></button>
-              {% endfor %}
-            </div>
-            <button class="icon-btn delete-note-btn" data-note-id="{{ note.id }}" title="付箋を削除" type="button">&times;</button>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <form class="add-note-form" data-category-id="{{ category.id }}">
-        <input type="text" class="add-note-input" placeholder="付箋を書く…" required>
-        <div class="color-picker">
-          {% for c in colors %}
-          <label class="color-radio">
-            <input type="radio" name="color-{{ category.id }}" value="{{ c }}"{% if c == 'yellow' %} checked{% endif %}>
-            <span class="dot dot-{{ c }}"></span>
-          </label>
-          {% endfor %}
-        </div>
-        <button type="submit" class="btn btn-small">付箋を追加</button>
-      </form>
-    </div>
-    {% endfor %}
-
-    <div class="column add-column">
-      <form id="add-category-form">
-        <h2 class="column-title muted">新しいカテゴリ</h2>
-        <input type="text" id="new-category-name" placeholder="カテゴリ名" required>
-        <button type="submit" class="btn btn-small">追加する</button>
-      </form>
+  <div class="canvas-wrapper" id="canvas-wrapper">
+    <div class="canvas" id="canvas">
+      <svg class="connectors" id="connectors"></svg>
+      <!-- notes are rendered here by board.js -->
     </div>
   </div>
+
+  <button id="add-root-note-btn" class="fab" type="button" title="付箋を追加">+</button>
 </div>
 
+<template id="note-template">
+  <div class="note" data-note-id="">
+    <div class="note-text" contenteditable="true"></div>
+    <div class="note-footer">
+      <div class="color-dots">
+        {% for c in colors %}
+        <button class="dot dot-{{ c }}" data-color="{{ c }}" title="{{ c }}" type="button"></button>
+        {% endfor %}
+      </div>
+      <div class="note-actions">
+        <button class="icon-btn add-child-btn" title="サブタスクを追加" type="button">+</button>
+        <button class="icon-btn delete-note-btn" title="削除" type="button">&times;</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script id="initial-notes" type="application/json">{{ notes | tojson }}</script>
 <script src="{{ url_for('static', filename='board.js') }}"></script>
 {% endblock %}

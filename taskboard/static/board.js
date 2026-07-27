@@ -1,8 +1,16 @@
 (() => {
+  const COLORS = ["yellow", "pink", "blue", "green", "orange", "purple"];
+
   const boardEl = document.getElementById("board");
   const boardId = boardEl.dataset.boardId;
-  const columnsEl = document.getElementById("columns");
-  const addCategoryForm = document.getElementById("add-category-form");
+  const canvas = document.getElementById("canvas");
+  const canvasWrapper = document.getElementById("canvas-wrapper");
+  const svg = document.getElementById("connectors");
+  const template = document.getElementById("note-template");
+  const initialNotes = JSON.parse(document.getElementById("initial-notes").textContent);
+  const addRootBtn = document.getElementById("add-root-note-btn");
+
+  const notesData = new Map(); // id -> { id, parent_id, text, color, x, y, el }
 
   function api(path, options = {}) {
     return fetch(path, {
@@ -29,232 +37,184 @@
     }
   });
 
-  // --- note element ---
-  function createNoteEl(note) {
-    const div = document.createElement("div");
-    div.className = `note note-${note.color}`;
-    div.draggable = true;
-    div.dataset.noteId = note.id;
-
-    const text = document.createElement("div");
-    text.className = "note-text";
-    text.contentEditable = "true";
-    text.dataset.noteId = note.id;
-    text.textContent = note.text;
-
-    const footer = document.createElement("div");
-    footer.className = "note-footer";
-
-    const dots = document.createElement("div");
-    dots.className = "color-dots";
-    ["yellow", "pink", "blue", "green", "orange", "purple"].forEach((color) => {
-      const dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = `dot dot-${color}${color === note.color ? " selected" : ""}`;
-      dot.dataset.noteId = note.id;
-      dot.dataset.color = color;
-      dot.title = color;
-      dots.appendChild(dot);
+  // --- connectors ---
+  function drawConnectors() {
+    svg.innerHTML = "";
+    notesData.forEach((note) => {
+      if (note.parent_id == null) return;
+      const parent = notesData.get(note.parent_id);
+      if (!parent) return;
+      const x1 = parent.el.offsetLeft + parent.el.offsetWidth / 2;
+      const y1 = parent.el.offsetTop + parent.el.offsetHeight;
+      const x2 = note.el.offsetLeft + note.el.offsetWidth / 2;
+      const y2 = note.el.offsetTop;
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", x1);
+      line.setAttribute("y1", y1);
+      line.setAttribute("x2", x2);
+      line.setAttribute("y2", y2);
+      svg.appendChild(line);
     });
-
-    const delBtn = document.createElement("button");
-    delBtn.type = "button";
-    delBtn.className = "icon-btn delete-note-btn";
-    delBtn.dataset.noteId = note.id;
-    delBtn.title = "付箋を削除";
-    delBtn.innerHTML = "&times;";
-
-    footer.appendChild(dots);
-    footer.appendChild(delBtn);
-    div.appendChild(text);
-    div.appendChild(footer);
-    wireNote(div);
-    return div;
   }
 
-  function wireNote(noteEl) {
-    const noteId = noteEl.dataset.noteId;
+  // --- note element ---
+  function createNoteEl(note) {
+    const frag = template.content.cloneNode(true);
+    const el = frag.querySelector(".note");
+    el.dataset.noteId = note.id;
+    el.classList.add(`note-${note.color}`);
+    el.style.left = `${note.x}px`;
+    el.style.top = `${note.y}px`;
+    el.querySelector(".note-text").textContent = note.text;
+    el.querySelectorAll(".dot").forEach((dot) => {
+      dot.classList.toggle("selected", dot.dataset.color === note.color);
+    });
+    canvas.appendChild(el);
+    notesData.set(note.id, { ...note, el });
+    wireNote(el, note.id);
+    return el;
+  }
 
-    noteEl.querySelector(".note-text").addEventListener("blur", (e) => {
+  function collectDescendants(id) {
+    const result = [];
+    const queue = [id];
+    while (queue.length) {
+      const current = queue.shift();
+      notesData.forEach((note) => {
+        if (note.parent_id === current) {
+          result.push(note.id);
+          queue.push(note.id);
+        }
+      });
+    }
+    return result;
+  }
+
+  function removeNoteLocally(id) {
+    const note = notesData.get(id);
+    if (!note) return;
+    note.el.remove();
+    notesData.delete(id);
+  }
+
+  function wireNote(el, noteId) {
+    const textEl = el.querySelector(".note-text");
+
+    textEl.addEventListener("blur", () => {
+      const text = textEl.textContent.trim();
+      notesData.get(noteId).text = text;
       api(`/api/notes/${noteId}`, {
         method: "PATCH",
-        body: JSON.stringify({ text: e.target.textContent.trim() }),
+        body: JSON.stringify({ text }),
       });
     });
 
-    noteEl.querySelectorAll(".dot").forEach((dot) => {
+    el.querySelectorAll(".dot").forEach((dot) => {
       dot.addEventListener("click", async () => {
         const color = dot.dataset.color;
         await api(`/api/notes/${noteId}`, {
           method: "PATCH",
           body: JSON.stringify({ color }),
         });
-        noteEl.className = `note note-${color}`;
-        noteEl.querySelectorAll(".dot").forEach((d) => {
+        COLORS.forEach((c) => el.classList.remove(`note-${c}`));
+        el.classList.add(`note-${color}`);
+        el.querySelectorAll(".dot").forEach((d) => {
           d.classList.toggle("selected", d.dataset.color === color);
         });
+        notesData.get(noteId).color = color;
       });
     });
 
-    noteEl.querySelector(".delete-note-btn").addEventListener("click", async () => {
-      await api(`/api/notes/${noteId}`, { method: "DELETE" });
-      noteEl.remove();
-    });
-
-    noteEl.addEventListener("dragstart", () => {
-      noteEl.classList.add("dragging");
-    });
-    noteEl.addEventListener("dragend", () => {
-      noteEl.classList.remove("dragging");
-      document.querySelectorAll(".note-list").forEach((list) => {
-        list.classList.remove("drag-over");
-      });
-      persistOrder(noteEl.closest(".note-list"));
-    });
-  }
-
-  function getDragAfterElement(list, y) {
-    const items = [...list.querySelectorAll(".note:not(.dragging)")];
-    return items.reduce(
-      (closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-          return { offset, element: child };
+    el.querySelector(".delete-note-btn").addEventListener("click", async () => {
+      const descendants = collectDescendants(noteId);
+      if (descendants.length > 0) {
+        if (!confirm("このタスクとぶら下がっているサブタスクをすべて削除します。よろしいですか？")) {
+          return;
         }
-        return closest;
-      },
-      { offset: Number.NEGATIVE_INFINITY, element: null }
-    ).element;
-  }
-
-  function persistOrder(list) {
-    if (!list) return;
-    const categoryId = list.dataset.categoryId;
-    const order = [...list.querySelectorAll(".note")].map((n) => Number(n.dataset.noteId));
-    api(`/api/categories/${categoryId}/reorder`, {
-      method: "POST",
-      body: JSON.stringify({ order }),
-    });
-  }
-
-  function wireNoteList(listEl) {
-    listEl.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      listEl.classList.add("drag-over");
-      const dragging = document.querySelector(".note.dragging");
-      if (!dragging) return;
-      const afterEl = getDragAfterElement(listEl, e.clientY);
-      if (afterEl == null) {
-        listEl.appendChild(dragging);
-      } else {
-        listEl.insertBefore(dragging, afterEl);
       }
+      await api(`/api/notes/${noteId}`, { method: "DELETE" });
+      descendants.forEach(removeNoteLocally);
+      removeNoteLocally(noteId);
+      drawConnectors();
     });
-    listEl.addEventListener("dragleave", (e) => {
-      if (e.target === listEl) listEl.classList.remove("drag-over");
-    });
-  }
 
-  // --- add note form ---
-  function wireAddNoteForm(form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const categoryId = form.dataset.categoryId;
-      const input = form.querySelector(".add-note-input");
-      const text = input.value.trim();
-      if (!text) return;
-      const colorInput = form.querySelector('input[type="radio"]:checked');
-      const color = colorInput ? colorInput.value : "yellow";
-      const note = await api(`/api/categories/${categoryId}/notes`, {
+    el.querySelector(".add-child-btn").addEventListener("click", async () => {
+      const parent = notesData.get(noteId);
+      const childCount = [...notesData.values()].filter((n) => n.parent_id === noteId).length;
+      const x = parent.x + 220;
+      const y = parent.y + childCount * 110;
+      const note = await api(`/api/boards/${boardId}/notes`, {
         method: "POST",
-        body: JSON.stringify({ text, color }),
+        body: JSON.stringify({ text: "", color: parent.color, x, y, parent_id: noteId }),
       });
-      const list = form.closest(".column").querySelector(".note-list");
-      list.appendChild(createNoteEl(note));
-      input.value = "";
-      input.focus();
+      createNoteEl(note);
+      drawConnectors();
+      const newEl = notesData.get(note.id).el;
+      newEl.querySelector(".note-text").focus();
     });
-  }
 
-  // --- category rename / delete ---
-  function wireColumnTitle(titleEl) {
-    titleEl.contentEditable = "true";
-    titleEl.addEventListener("blur", () => {
-      const name = titleEl.textContent.trim();
-      const categoryId = titleEl.dataset.categoryId;
-      if (!name) {
-        titleEl.textContent = "無題";
-        return;
-      }
-      api(`/api/categories/${categoryId}`, {
+    // --- drag to reposition ---
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let origX = 0;
+    let origY = 0;
+
+    el.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button, .note-text")) return;
+      dragging = true;
+      el.setPointerCapture(e.pointerId);
+      el.classList.add("dragging");
+      startX = e.clientX;
+      startY = e.clientY;
+      const note = notesData.get(noteId);
+      origX = note.x;
+      origY = note.y;
+    });
+
+    el.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const newX = Math.max(0, origX + dx);
+      const newY = Math.max(0, origY + dy);
+      el.style.left = `${newX}px`;
+      el.style.top = `${newY}px`;
+      const note = notesData.get(noteId);
+      note.x = newX;
+      note.y = newY;
+      drawConnectors();
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove("dragging");
+      const note = notesData.get(noteId);
+      api(`/api/notes/${noteId}`, {
         method: "PATCH",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ x: note.x, y: note.y }),
       });
-    });
+    }
+
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
   }
 
-  function wireDeleteColumn(btn) {
-    btn.addEventListener("click", async () => {
-      const categoryId = btn.dataset.categoryId;
-      if (!confirm("このカテゴリと中の付箋をすべて削除します。よろしいですか？")) return;
-      await api(`/api/categories/${categoryId}`, { method: "DELETE" });
-      btn.closest(".column").remove();
-    });
-  }
-
-  // --- wire existing DOM on load ---
-  document.querySelectorAll(".note").forEach(wireNote);
-  document.querySelectorAll(".note-list").forEach(wireNoteList);
-  document.querySelectorAll(".add-note-form").forEach(wireAddNoteForm);
-  document.querySelectorAll(".column-title:not(.muted)").forEach(wireColumnTitle);
-  document.querySelectorAll(".delete-column-btn").forEach(wireDeleteColumn);
-
-  // --- add category ---
-  addCategoryForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const input = document.getElementById("new-category-name");
-    const name = input.value.trim();
-    if (!name) return;
-    const category = await api(`/api/boards/${boardId}/categories`, {
+  // --- add root-level note ---
+  addRootBtn.addEventListener("click", async () => {
+    const x = canvasWrapper.scrollLeft + canvasWrapper.clientWidth / 2 - 95;
+    const y = canvasWrapper.scrollTop + canvasWrapper.clientHeight / 2 - 40;
+    const note = await api(`/api/boards/${boardId}/notes`, {
       method: "POST",
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ text: "", color: "yellow", x, y, parent_id: null }),
     });
-
-    const column = document.createElement("div");
-    column.className = "column";
-    column.dataset.categoryId = category.id;
-    column.innerHTML = `
-      <div class="column-header">
-        <h2 class="column-title" data-category-id="${category.id}"></h2>
-        <button class="icon-btn delete-column-btn" data-category-id="${category.id}" title="カテゴリを削除" type="button">&times;</button>
-      </div>
-      <div class="note-list" data-category-id="${category.id}"></div>
-      <form class="add-note-form" data-category-id="${category.id}">
-        <input type="text" class="add-note-input" placeholder="付箋を書く…" required>
-        <div class="color-picker">
-          ${["yellow", "pink", "blue", "green", "orange", "purple"]
-            .map(
-              (c, i) => `
-            <label class="color-radio">
-              <input type="radio" name="color-${category.id}" value="${c}"${i === 0 ? " checked" : ""}>
-              <span class="dot dot-${c}"></span>
-            </label>`
-            )
-            .join("")}
-        </div>
-        <button type="submit" class="btn btn-small">付箋を追加</button>
-      </form>
-    `;
-    column.querySelector(".column-title").textContent = category.name;
-
-    columnsEl.insertBefore(column, columnsEl.querySelector(".add-column"));
-
-    wireColumnTitle(column.querySelector(".column-title"));
-    wireDeleteColumn(column.querySelector(".delete-column-btn"));
-    wireNoteList(column.querySelector(".note-list"));
-    wireAddNoteForm(column.querySelector(".add-note-form"));
-
-    input.value = "";
+    createNoteEl(note);
+    drawConnectors();
+    notesData.get(note.id).el.querySelector(".note-text").focus();
   });
+
+  // --- initial render ---
+  initialNotes.forEach(createNoteEl);
+  drawConnectors();
 })();

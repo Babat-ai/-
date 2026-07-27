@@ -4,6 +4,10 @@
   padding: 0;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: "Helvetica Neue", Arial, "Hiragino Sans", sans-serif;
   color: #222;
@@ -69,6 +73,12 @@ main {
 }
 
 /* Board page */
+.board {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 53px);
+}
+
 .share-box {
   display: flex;
   align-items: center;
@@ -77,6 +87,7 @@ main {
   padding: 12px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .share-box label {
@@ -95,83 +106,52 @@ main {
   background: #f7f7f8;
 }
 
-.columns {
-  display: flex;
-  gap: 16px;
-  padding: 20px;
-  overflow-x: auto;
-  align-items: flex-start;
-  -webkit-overflow-scrolling: touch;
-}
-
-.column {
-  background: #dfe3e9;
-  border-radius: 10px;
-  padding: 14px;
-  width: 260px;
-  min-width: 260px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.column-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.column-title {
-  font-size: 0.95rem;
-  font-weight: bold;
-  outline: none;
-  word-break: break-word;
+.canvas-wrapper {
   flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #eef1f5;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-.column-title.muted {
-  color: #777;
+.canvas {
+  position: relative;
+  width: 3000px;
+  height: 2000px;
 }
 
-.icon-btn {
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
+.connectors {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.icon-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
-  color: #333;
-}
-
-.note-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 20px;
-}
-
-.note-list.drag-over {
-  background: rgba(61, 125, 214, 0.12);
-  border-radius: 8px;
+.connectors line {
+  stroke: #9aa3ad;
+  stroke-width: 2;
 }
 
 .note {
+  position: absolute;
+  width: 190px;
   border-radius: 6px;
   padding: 10px 10px 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .note.dragging {
-  opacity: 0.4;
+  cursor: grabbing;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
 }
 
 .note-text {
@@ -181,6 +161,8 @@ main {
   outline: none;
   word-break: break-word;
   white-space: pre-wrap;
+  cursor: text;
+  user-select: text;
 }
 
 .note-footer {
@@ -222,63 +204,41 @@ main {
 .note-orange { background: #ffe0b2; }
 .note-purple { background: #e1bee7; }
 
-.add-note-form {
+.note-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
-.add-note-input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-family: inherit;
-}
-
-.color-picker {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.color-radio {
+.icon-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
-  display: inline-flex;
-}
-
-.color-radio input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.color-radio input:checked + .dot {
-  border-color: #333;
-}
-
-.add-column {
-  background: transparent;
-  box-shadow: none;
-}
-
-.add-column form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px dashed #aaa;
-  border-radius: 10px;
-  padding: 14px;
-}
-
-.add-column input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.9rem;
-  font-family: inherit;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #222;
+}
+
+.fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #3d7dd6;
+  color: #fff;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
@@ -294,13 +254,7 @@ main {
     font-size: 0.8rem;
   }
 
-  .columns {
-    padding: 12px;
-    gap: 12px;
-  }
-
-  .column {
-    width: 78vw;
-    min-width: 78vw;
+  .note {
+    width: 160px;
   }
 }
