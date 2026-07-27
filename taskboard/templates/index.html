@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="intro">
+  <h1>頭の中のタスクを、ボードに全部出そう</h1>
+  <p>
+    やりたいこと、やるべきこと、よくわからないけどやらなきゃいけないこと。
+    付箋を貼るように書き出して、色分けして整理できます。
+    ボードはURLひとつで誰とでも共有できます。
+  </p>
+  <form action="{{ url_for('new_board') }}" method="post">
+    <button type="submit" class="btn btn-large">新しいボードを作る</button>
+  </form>
+</section>
+{% endblock %}
