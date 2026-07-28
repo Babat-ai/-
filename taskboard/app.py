@@ -29,11 +29,14 @@ def close_db(exception=None):
 
 
 def init_db():
-    with app.app_context():
-        db = get_db()
-        with open(BASE_DIR / "schema.sql") as f:
-            db.executescript(f.read())
-        db.commit()
+    db = sqlite3.connect(DB_PATH)
+    with open(BASE_DIR / "schema.sql") as f:
+        db.executescript(f.read())
+    db.commit()
+    db.close()
+
+
+init_db()
 
 
 def get_board_or_404(board_id):
@@ -155,5 +158,4 @@ def delete_note(note_id):
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True, port=5001, host="0.0.0.0")
