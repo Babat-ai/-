@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Senseisha PV</title>
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/shippori-mincho/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/shippori-mincho/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/300.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/300-italic.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/800.css">
+<style>
+:root{
+  --ink:#1f2430; --sub:#6b7180;
+  --red:#EF4459; --orange:#F39A3B; --yellow:#FFE326; --blue:#5BB8EC; --green:#6CC75A; --pink:#F27DB3;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#fff}
+body{font-family:'Zen Kaku Gothic New',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.scene{position:absolute;inset:0;overflow:hidden;display:none}
+.abs{position:absolute}
+.en{font-family:'Montserrat',sans-serif}
+.min{font-family:'Shippori Mincho',serif}
+.mask{overflow:hidden;display:block}
+.mask>span{display:inline-block}
+.ch{display:inline-block;white-space:pre}
+.card{position:absolute;background:#fff;padding:10px;box-shadow:0 30px 60px rgba(20,25,40,.22),0 6px 14px rgba(20,25,40,.12)}
+.card img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* soft background blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.28}
+
+/* wipe */
+#wipe{position:absolute;inset:0;pointer-events:none;z-index:50}
+#wipe div{position:absolute;top:-20%;height:140%;width:40%;transform:skewX(-14deg)}
+
+/* subtitles */
+#sub{position:absolute;left:0;right:0;bottom:44px;text-align:center;z-index:60}
+#sub span{display:inline-block;background:rgba(25,28,38,.78);color:#fff;font-size:34px;font-weight:700;letter-spacing:.06em;padding:12px 30px;border-radius:40px;opacity:0}
+
+/* S1 */
+#s1 .copy-en{left:1040px;top:300px;font-size:30px;font-style:italic;font-weight:300;letter-spacing:.08em;color:var(--sub)}
+#s1 .copy{left:1036px;top:356px;font-size:84px;font-weight:700;line-height:1.3;letter-spacing:.04em}
+#s1 .label{left:1044px;top:610px;font-size:32px;font-weight:700;letter-spacing:.12em}
+#s1 .label i{position:absolute;left:-8px;right:-8px;bottom:2px;height:16px;background:var(--yellow);z-index:-1;transform-origin:left}
+#s1 .logo{left:1030px;top:680px;width:700px}
+
+/* S2 */
+#s2 .sky{left:0;top:0;width:2300px;height:310px;object-fit:cover}
+#s2 .skyfade{left:0;top:0;width:100%;height:320px;background:linear-gradient(180deg,rgba(255,255,255,0) 40%,#fff 100%)}
+#s2 .since{left:170px;top:380px;font-size:40px;font-weight:500;letter-spacing:.5em;color:var(--sub)}
+#s2 .year{left:150px;top:410px;font-size:250px;font-weight:800;letter-spacing:-.02em;line-height:1.1;
+  background:linear-gradient(100deg,var(--orange),var(--red) 45%,var(--pink));-webkit-background-clip:text;color:transparent}
+#s2 .ring{left:1260px;top:330px;width:420px;height:420px}
+#s2 .num{left:1260px;top:420px;width:420px;text-align:center;font-size:170px;font-weight:800;line-height:1}
+#s2 .num small{font-size:60px}
+#s2 .numlbl{left:1260px;top:610px;width:420px;text-align:center;font-size:36px;font-weight:700;letter-spacing:.2em}
+#s2 .line{left:170px;top:705px;width:1580px;height:2px;background:var(--ink);transform-origin:left}
+#s2 .msg{left:170px;top:730px;font-size:58px;font-weight:900;letter-spacing:.06em;line-height:1.45}
+
+/* S3 */
+#s3 .ttl{left:140px;top:230px;font-size:150px;font-weight:800;letter-spacing:.02em;line-height:1}
+#s3 .ttljp{left:150px;top:410px;font-size:38px;font-weight:700;letter-spacing:.3em}
+#s3 .ttlnum{left:150px;top:490px;font-size:26px;letter-spacing:.2em;color:var(--sub)}
+#s3 .head{left:140px;top:640px;font-size:64px;font-weight:900;line-height:1.45;letter-spacing:.04em}
+#s3 .bar{left:860px;width:1100px;height:84px;color:#fff;display:flex;align-items:center;padding-left:40px;overflow:hidden}
+#s3 .bar b{font-family:'Montserrat';font-weight:300;font-size:30px;width:80px;opacity:.85}
+#s3 .bar span{font-size:38px;font-weight:700;letter-spacing:.12em;width:470px}
+#s3 .bar em{font-family:'Montserrat';font-style:normal;font-weight:500;font-size:20px;letter-spacing:.25em;opacity:.8}
+#s3 .bar .shine{position:absolute;top:0;left:-30%;width:20%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg)}
+
+/* S4 */
+#s4 .panel{left:0;top:0;width:740px;height:1080px}
+#s4 .works{left:100px;top:110px;font-size:28px;font-weight:500;letter-spacing:.4em;color:#fff;z-index:5}
+#s4 .grp{position:absolute;inset:0}
+#s4 .cat{left:100px;top:360px;font-size:66px;font-weight:800;color:#fff;line-height:1.05;letter-spacing:.01em}
+#s4 .cap{left:100px;top:540px;font-size:44px;font-weight:900;color:#fff;line-height:1.4;letter-spacing:.04em}
+#s4 .cli{left:100px;top:700px;font-size:26px;font-weight:700;color:#fff;opacity:.9;letter-spacing:.08em}
+#s4 .cli:before{content:"";display:inline-block;width:40px;height:2px;background:#fff;vertical-align:middle;margin-right:16px}
+#s4 .idx{left:100px;top:300px;font-size:24px;font-weight:500;color:#fff;letter-spacing:.3em;opacity:.85}
+#s4 .mosaic{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,1fr);gap:8px;padding:8px;background:#fff}
+#s4 .mosaic div{overflow:hidden}
+#s4 .mosaic img{width:100%;height:100%;object-fit:cover;display:block}
+#s4 .mcover{position:absolute;inset:0;background:rgba(20,24,34,.55)}
+#s4 .mtext{left:0;right:0;top:420px;text-align:center;color:#fff;font-size:80px;font-weight:900;letter-spacing:.08em;line-height:1.35}
+#s4 .mtext small{display:block;font-family:'Montserrat';font-size:28px;font-weight:500;letter-spacing:.5em;margin-bottom:24px}
+
+/* S5 */
+#s5 .ttl{left:140px;top:90px;font-size:30px;font-weight:500;letter-spacing:.45em;color:var(--sub)}
+#s5 .ttljp{left:140px;top:135px;font-size:60px;font-weight:900;letter-spacing:.1em}
+#s5 .track{left:200px;top:332px;width:1520px;height:2px;background:repeating-linear-gradient(90deg,#9aa0ad 0 6px,transparent 6px 14px);transform-origin:left}
+#s5 .step{position:absolute;top:262px;width:380px}
+#s5 .circ{position:absolute;left:0;top:0;width:140px;height:140px;border-radius:50%;border:3px dotted #9aa0ad;background:#fff}
+#s5 .circ i{position:absolute;left:24px;top:46px;font-family:'Montserrat';font-style:italic;font-size:22px;color:var(--sub)}
+#s5 .circ b{position:absolute;left:62px;top:14px;font-family:'Montserrat';font-style:italic;font-weight:300;font-size:92px;line-height:1}
+#s5 .ybar{position:absolute;left:160px;top:60px;width:220px;height:20px;background:var(--yellow);transform-origin:left}
+#s5 .ph{position:absolute;left:0;top:170px;width:380px;height:300px;overflow:hidden}
+#s5 .ph img{width:100%;height:100%;object-fit:cover}
+#s5 .st{position:absolute;left:0;top:500px;font-size:38px;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+#s5 .sd{position:absolute;left:0;top:560px;width:380px;font-size:24px;line-height:1.6;color:#454b58}
+#s5 .big{left:0;right:0;top:300px;text-align:center;font-size:300px;font-weight:800;line-height:1;
+  background:linear-gradient(100deg,var(--orange),var(--red) 50%,var(--pink));-webkit-background-clip:text;color:transparent}
+#s5 .bigsub{left:0;right:0;top:640px;text-align:center;font-size:52px;font-weight:900;letter-spacing:.1em}
+#s5 .veil{position:absolute;inset:0;background:rgba(255,255,255,.93)}
+
+/* S6 */
+#s6 .copy{left:0;right:0;top:330px;text-align:center;font-size:88px;font-weight:700;letter-spacing:.06em}
+#s6 .logo{left:610px;top:540px;width:700px}
+#s6 .info{left:0;right:0;top:760px;text-align:center;font-size:28px;line-height:1.9;letter-spacing:.08em;color:#3b414e}
+#s6 .info b{font-family:'Montserrat';font-weight:500}
+#s6 .tag{left:0;right:0;top:270px;text-align:center;font-size:26px;font-style:italic;font-weight:300;letter-spacing:.12em;color:var(--sub)}
+#fade{position:absolute;inset:0;background:#fff;opacity:0;z-index:70}
+#preload{position:absolute;left:0;top:0;opacity:0;font-size:20px;width:1900px;z-index:-1}
+</style>
+</head>
+<body>
+
+<!-- ============ S1 OPENING ============ -->
+<section class="scene" id="s1">
+  <div class="blob" style="left:1100px;top:-200px;width:700px;height:700px;background:var(--yellow)"></div>
+  <div class="blob" style="left:1500px;top:600px;width:600px;height:600px;background:var(--blue)"></div>
+  <svg id="spark1" class="abs" style="left:0;top:0" width="1920" height="1080"></svg>
+  <div class="abs copy-en en">Always try for someone's smile...</div>
+  <div class="abs copy min" id="s1copy"></div>
+  <div class="abs label"><i></i><span>大阪・北浜の総合広告代理店</span></div>
+  <img class="abs logo" src="img/logo.png">
+</section>
+
+<!-- ============ S2 HISTORY ============ -->
+<section class="scene" id="s2">
+  <img class="abs sky" src="img/sky.jpg">
+  <div class="abs skyfade"></div>
+  <div class="abs since en">SINCE</div>
+  <div class="abs year en" id="year">1963</div>
+  <svg class="abs ring" viewBox="0 0 420 420">
+    <circle cx="210" cy="210" r="200" fill="none" stroke="#e8e9ee" stroke-width="2"/>
+    <circle id="ringArc" cx="210" cy="210" r="200" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="1257" stroke-dashoffset="1257" transform="rotate(-90 210 210)"/>
+    <circle id="ringDot" cx="210" cy="210" r="182" fill="none" stroke="#c9ccd6" stroke-width="3" stroke-dasharray="2 10"/>
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F39A3B"/><stop offset="1" stop-color="#F27DB3"/></linearGradient></defs>
+  </svg>
+  <div class="abs num en"><span id="sixty">0</span><small>+</small></div>
+  <div class="abs numlbl">年 以 上 の 実 績</div>
+  <div class="abs line"></div>
+  <div class="abs msg">
+    <span class="mask"><span>広告とコミュニケーションの力で、</span></span>
+    <span class="mask"><span>お客様の課題に、向き合い続ける。</span></span>
+  </div>
+</section>
+
+<!-- ============ S3 SERVICES ============ -->
+<section class="scene" id="s3">
+  <div class="blob" style="left:-200px;top:600px;width:700px;height:600px;background:var(--pink);opacity:.18"></div>
+  <div class="abs ttl en">SERVICE</div>
+  <div class="abs ttljp">事業領域</div>
+  <div class="abs ttlnum en">8 CATEGORIES</div>
+  <div class="abs head">
+    <span class="mask"><span>あらゆる手法から、</span></span>
+    <span class="mask"><span>最適な一手を。</span></span>
+  </div>
+  <div id="bars"></div>
+</section>
+
+<!-- ============ S4 WORKS ============ -->
+<section class="scene" id="s4">
+  <div class="abs panel" id="panel"></div>
+  <div class="abs works en">WORKS</div>
+  <div id="beats"></div>
+  <div class="grp" id="mos">
+    <div class="mosaic" id="mosaic"></div>
+    <div class="mcover"></div>
+    <div class="abs mtext"><small>RESULTS</small><span class="mask"><span>成果につながる</span></span><span class="mask"><span>クリエイティブを。</span></span></div>
+  </div>
+</section>
+
+<!-- ============ S5 FLOW ============ -->
+<section class="scene" id="s5">
+  <div class="abs ttl en">PROJECT FLOW</div>
+  <div class="abs ttljp">ご相談から、その先まで。</div>
+  <div class="abs track"></div>
+  <div id="steps"></div>
+  <div class="veil" id="veil"></div>
+  <div class="abs big en" id="pct">100%</div>
+  <div class="abs bigsub">次は、120%の成果へ。</div>
+</section>
+
+<!-- ============ S6 CLOSING ============ -->
+<section class="scene" id="s6">
+  <div class="blob" style="left:-150px;top:-150px;width:600px;height:600px;background:var(--yellow)"></div>
+  <div class="blob" style="left:1450px;top:650px;width:600px;height:600px;background:var(--pink)"></div>
+  <svg id="spark6" class="abs" style="left:0;top:0" width="1920" height="1080"></svg>
+  <div class="abs tag en">Advertising &amp; More Communication since 1963</div>
+  <div class="abs copy min" id="s6copy"></div>
+  <img class="abs logo" src="img/logo.png">
+  <div class="abs info">大阪市中央区北浜1-5-8　｜　「北浜」駅 30番出口 徒歩1分<br>
+    TEL <b>06-6222-6888</b>　｜　<b>info@senseisha.co.jp</b></div>
+</section>
+
+<div id="wipe"></div>
+<div id="sub"><span id="subtxt"></span></div>
+<div id="fade"></div>
+<div id="preload"></div>
+
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const tl = gsap.timeline({paused:true});
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+// ---------- timing (seconds) ----------
+const T = {s1:0, s2:12.5, s3:23.5, s4:41.5, s5:61, s6:80, end:90};
+const V = {s1:3.0, s2:13.1, s3:24.1, s4:42.1, s5:61.6, s6:81.2}; // narration start
+const D = __DURATIONS__;   // injected: {s1:{dur,marks}, ...}
+const SUBS = __SUBS__;     // injected: {s1:[text,...]}
+
+// ---------- helpers ----------
+function splitChars(el, text){
+  el.innerHTML = text.split('\n').map(line =>
+    '<span class="mask" style="padding-bottom:.08em">' + [...line].map(c=>`<span class="ch">${c}</span>`).join('') + '</span>'
+  ).join('');
+  return $$('.ch', el);
+}
+function show(id, t){ tl.set('#'+id, {display:'block'}, t); }
+function hide(id, t){ tl.set('#'+id, {visibility:'hidden'}, t); }
+
+// sparkle cross path (organic plus)
+const CROSS = "M0,-50 C11,-50 13,-30 13,-13 C30,-13 50,-11 50,0 C50,11 30,13 13,13 C13,30 11,50 0,50 C-11,50 -13,30 -13,13 C-30,13 -50,11 -50,0 C-50,-11 -30,-13 -13,-13 C-13,-30 -11,-50 0,-50Z";
+const C = {r:'#EF4459',o:'#F39A3B',y:'#FFE326',b:'#5BB8EC',g:'#6CC75A',p:'#F27DB3'};
+function addCross(svg, x, y, size, col){
+  const g = document.createElementNS(SVGNS,'g');
+  g.setAttribute('transform',`translate(${x} ${y})`);
+  const p = document.createElementNS(SVGNS,'path');
+  p.setAttribute('d',CROSS); p.setAttribute('fill',col);
+  p.setAttribute('transform',`scale(${size/100})`);
+  const inner = document.createElementNS(SVGNS,'g'); inner.appendChild(p);
+  g.appendChild(inner); svg.appendChild(g);
+  return inner;
+}
+
+// ---------- WIPE transition ----------
+const WC = ['#4FC3C4','#F38BBF','#A57FC6','#EF5361','#57A3DE','#FFE326','#6CC75A'];
+WC.forEach((c,i)=>{ const d=document.createElement('div'); d.style.background=c; d.style.left=(i*20-20)+'%'; $('#wipe').appendChild(d); });
+gsap.set('#wipe div',{xPercent:-420});
+function wipe(t, from, to){
+  const els = $$('#wipe div');
+  tl.fromTo(els,{xPercent:-420},{xPercent:0,duration:.5,ease:'power3.in',stagger:.04,immediateRender:false},t-.8);
+  tl.set('#'+from,{display:'none'},t); tl.set('#'+to,{display:'block'},t);
+  tl.fromTo(els,{xPercent:0},{xPercent:420,duration:.6,ease:'power3.out',stagger:.04,immediateRender:false},t+.02);
+}
+
+// ---------- SUBTITLES ----------
+function subtitles(){
+  for (const k of Object.keys(SUBS)){
+    const m = D[k].marks, dur = D[k].dur;
+    SUBS[k].forEach((txt,i)=>{
+      const st = V[k] + m[i];
+      const en = V[k] + (i < m.length-1 ? m[i+1]-0.32 : dur) + 0.15;
+      const long = txt.length > 34;
+      tl.set('#subtxt',{textContent:txt,fontSize:long?28:34,letterSpacing:long?'.02em':'.06em'},st-0.12);
+      tl.fromTo('#subtxt',{opacity:0,y:10},{opacity:1,y:0,duration:.25,ease:'power2.out'},st-0.12);
+      tl.to('#subtxt',{opacity:0,duration:.2},en);
+    });
+  }
+}
+
+// =========================================================
+// S1 OPENING
+// =========================================================
+function buildS1(){
+  const t0 = T.s1;
+  show('s1', t0);
+  const svg = $('#spark1');
+  const K=1.3, OX=40, OY=-5;
+  const list = [[105,105,75,'r'],[270,78,70,'o'],[500,90,95,'y'],[645,85,45,'r'],[390,148,75,'b'],[563,152,72,'g'],
+    [210,188,75,'b'],[85,207,45,'p'],[278,226,45,'o'],[470,240,70,'p'],[80,350,45,'r'],[433,386,95,'y'],
+    [122,493,85,'y'],[312,458,45,'g'],[265,498,45,'p'],[337,582,45,'r'],[177,620,45,'o'],[113,680,70,'b'],
+    [560,520,40,'b'],[600,700,55,'g'],[420,690,40,'p']];
+  const crosses = list.map(([x,y,s,c]) => addCross(svg, x*K+OX, y*K+OY, s*K*1.05, C[c]));
+  // face
+  const face = document.createElementNS(SVGNS,'g'); svg.appendChild(face);
+  face.innerHTML = `
+    <circle class="fd" cx="${170*K+OX}" cy="${301*K+OY}" r="${16*K}" fill="${C.g}"/>
+    <circle class="fd" cx="${313*K+OX}" cy="${333*K+OY}" r="${15*K}" fill="${C.o}"/>
+    <path class="fn" d="M${250*K+OX},${322*K+OY} L${241*K+OX},${370*K+OY} L${263*K+OX},${370*K+OY}Z" fill="${C.b}"/>
+    <path class="fm" d="M${193*K+OX},${404*K+OY} Q${228*K+OX},${428*K+OY} ${262*K+OX},${406*K+OY}" fill="none" stroke="${C.o}" stroke-width="${12*K}" stroke-linecap="round"/>`;
+  const fm = $('.fm', face); const len = fm.getTotalLength();
+  gsap.set(fm,{strokeDasharray:len,strokeDashoffset:len});
+
+  // pop in
+  const order = crosses.map((c,i)=>i).sort((a,b)=>((a*7)%11)-((b*7)%11));
+  order.forEach((idx,n)=>{
+    tl.fromTo(crosses[idx],{scale:0,rotation:-120,transformOrigin:'50% 50%'},
+      {scale:1,rotation:0,duration:.9,ease:'back.out(2.6)'}, t0+.25+n*.07);
+    // gentle float
+    tl.to(crosses[idx],{y:(n%2?10:-10),rotation:(n%3-1)*14,duration:2.6,ease:'sine.inOut',repeat:3,yoyo:true}, t0+1.4+n*.05);
+  });
+  tl.fromTo($$('.fd',face),{scale:0,transformOrigin:'50% 50%'},{scale:1,duration:.6,ease:'back.out(3)',stagger:.12}, t0+1.7);
+  tl.fromTo($('.fn',face),{scaleY:0,transformOrigin:'50% 0%'},{scaleY:1,duration:.5,ease:'power3.out'}, t0+2.0);
+  tl.to(fm,{strokeDashoffset:0,duration:.7,ease:'power2.inOut'}, t0+2.2);
+
+  // english line typewriter
+  const en = $('#s1 .copy-en'); const enChars = splitChars(en, en.textContent);
+  tl.fromTo(enChars,{opacity:0},{opacity:1,duration:.01,stagger:.035}, t0+2.6);
+  // main copy
+  const chars = splitChars($('#s1copy'), '誰かの、\n笑顔のために。');
+  tl.fromTo(chars,{yPercent:110,opacity:0,filter:'blur(8px)'},{yPercent:0,opacity:1,filter:'blur(0px)',duration:.8,ease:'expo.out',stagger:.07}, V.s1-.05);
+  // label + bar
+  const lab = V.s1 + D.s1.marks[1];
+  tl.fromTo('#s1 .label span',{y:30,opacity:0},{y:0,opacity:1,duration:.6,ease:'power3.out'}, lab-.1);
+  tl.fromTo('#s1 .label i',{scaleX:0},{scaleX:1,duration:.6,ease:'power3.inOut'}, lab);
+  // logo
+  const lg = V.s1 + D.s1.marks[2];
+  tl.fromTo('#s1 .logo',{clipPath:'inset(0 100% 0 0)',x:-30},{clipPath:'inset(0 0% 0 0)',x:0,duration:1.0,ease:'expo.out'}, lg-.15);
+  // slight camera push
+  tl.fromTo('#s1',{scale:1},{scale:1.04,duration:12,ease:'none'}, t0);
+}
+
+// =========================================================
+// S2 HISTORY
+// =========================================================
+function buildS2(){
+  const t0 = T.s2;
+  wipe(t0,'s1','s2');
+  tl.fromTo('#s2 .sky',{x:0},{x:-380,duration:11,ease:'none'}, t0);
+  tl.fromTo('#s2 .since',{opacity:0,letterSpacing:'1.2em'},{opacity:1,letterSpacing:'.5em',duration:1.2,ease:'expo.out'}, t0+.3);
+  const yr = {v:1900};
+  tl.fromTo('#year',{opacity:0,y:60},{opacity:1,y:0,duration:.9,ease:'expo.out'}, t0+.35);
+  tl.fromTo(yr,{v:1900},{v:1963,duration:1.6,ease:'power3.out',onUpdate:()=>{$('#year').textContent=Math.round(yr.v)}}, t0+.35);
+  // ring + 60
+  tl.fromTo('#s2 .ring',{scale:.6,opacity:0,rotation:-40,transformOrigin:'50% 50%'},{scale:1,opacity:1,rotation:0,duration:1,ease:'back.out(1.6)'}, V.s2+1.6);
+  tl.to('#ringArc',{strokeDashoffset:0,duration:1.8,ease:'power2.inOut'}, V.s2+1.8);
+  tl.to('#ringDot',{rotation:120,svgOrigin:'210 210',duration:9,ease:'none'}, V.s2+1.6);
+  const sx = {v:0};
+  tl.fromTo('#s2 .num',{opacity:0,scale:.7},{opacity:1,scale:1,duration:.6,ease:'back.out(2)'}, V.s2+1.8);
+  tl.fromTo(sx,{v:0},{v:60,duration:1.8,ease:'power2.out',onUpdate:()=>{$('#sixty').textContent=Math.round(sx.v)}}, V.s2+1.8);
+  tl.fromTo('#s2 .numlbl',{opacity:0,y:20},{opacity:1,y:0,duration:.6,ease:'power3.out'}, V.s2+2.6);
+  // message
+  const m = V.s2 + D.s2.marks[1];
+  tl.fromTo('#s2 .line',{scaleX:0},{scaleX:1,duration:1,ease:'expo.inOut'}, m-.4);
+  tl.fromTo($$('#s2 .msg .mask>span'),{yPercent:105},{yPercent:0,duration:.9,ease:'expo.out',stagger:.5}, m);
+}
+
+// =========================================================
+// S3 SERVICES
+// =========================================================
+const SERV = [
+  ['求人広告','RECRUITING','#4FC3C4'],['自治体広報紙広告','PUBLIC RELATIONS','#F38BBF'],
+  ['WEBプロモーション','WEB PROMOTION','#A57FC6'],['動画制作・配信','MOVIE','#EF5361'],
+  ['各種デザイン制作','GRAPHIC DESIGN','#57A3DE'],['イベントプロモーション','EVENT','#B39C6A'],
+  ['電波（テレビ・ラジオ）','TV / RADIO','#C06E4B'],['屋外広告','OUTDOOR','#66C35A']];
+function buildS3(){
+  const t0 = T.s3;
+  wipe(t0,'s2','s3');
+  const host = $('#bars');
+  SERV.forEach(([jp,en,c],i)=>{
+    const d=document.createElement('div'); d.className='abs bar';
+    d.style.top=(118+i*102)+'px'; d.style.background=c;
+    d.innerHTML=`<b>${String(i+1).padStart(2,'0')}</b><span>${jp}</span><em>${en}</em><div class="shine"></div>`;
+    host.appendChild(d);
+  });
+  tl.fromTo('#s3 .ttl',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:1.1,ease:'expo.out'}, t0+.25);
+  tl.fromTo(['#s3 .ttljp','#s3 .ttlnum'],{opacity:0,x:-30},{opacity:1,x:0,duration:.7,stagger:.12,ease:'power3.out'}, t0+.6);
+  const offs = [0,1.31,2.69,3.97,5.15,5.99,6.83,9.19];
+  $$('#s3 .bar').forEach((b,i)=>{
+    const t = V.s3 + offs[i] - .12;
+    tl.fromTo(b,{xPercent:105},{xPercent:0,duration:.85,ease:'expo.out'}, t);
+    tl.fromTo($$('b,span,em',b),{opacity:0,x:40},{opacity:1,x:0,duration:.6,stagger:.06,ease:'power3.out'}, t+.18);
+    tl.fromTo($('.shine',b),{left:'-30%'},{left:'130%',duration:.9,ease:'power2.inOut'}, t+.35);
+  });
+  // headline
+  const h = V.s3 + D.s3.marks[1];
+  tl.to(['#s3 .ttljp','#s3 .ttlnum'],{opacity:.35,duration:.5}, h-.3);
+  tl.fromTo($$('#s3 .head .mask>span'),{yPercent:105},{yPercent:0,duration:.9,ease:'expo.out',stagger:.35}, h);
+  tl.to($$('#s3 .bar'),{x:-14,duration:.35,ease:'power2.out',yoyo:true,repeat:1,stagger:.05}, h+.2);
+}
+
+// =========================================================
+// S4 WORKS
+// =========================================================
+const BEATS = [
+  {col:'#A57FC6', cat:'WEB<br>PROMOTION', cap:'イベントを周知する<br>WEB広告', cli:'大阪ガス株式会社',
+   cards:[['web_visual',840,170,560,560,-4],['web_phones',1330,300,500,480,5]]},
+  {col:'#EF5361', cat:'MOVIE', cap:'オリジナルキャラクターの<br>施設紹介動画', cli:'公益財団法人 大阪産業局',
+   cards:[['mv_thumb',830,150,700,410,-3],['mv_scene',1160,520,660,410,3]]},
+  {col:'#B39C6A', cat:'EVENT', cap:'4日間で約200名が<br>来場した展示会', cli:'株式会社北浜化学 ほか',
+   cards:[['booth',810,190,640,480,-3],['pv_poster',1460,140,360,510,4],['pv',1130,560,440,410,-2]]},
+  {col:'#66C35A', cat:'OUTDOOR /<br>DESIGN', cap:'街を彩る<br>ポスター・ビジョン', cli:'大阪府 / 福知山市 ほか',
+   cards:[['umeda',800,170,520,490,-3],['signage',1340,130,360,500,4],['trick',1060,560,420,420,2],['station',1500,610,340,330,-4]]},
+];
+function buildS4(){
+  const t0 = T.s4;
+  wipe(t0,'s3','s4');
+  const host = $('#beats');
+  BEATS.forEach((b,i)=>{
+    const g=document.createElement('div'); g.className='grp'; g.style.visibility='hidden';
+    g.innerHTML=`<div class="abs idx en">0${i+1} / 04</div><div class="abs cat en">${b.cat}</div>
+      <div class="abs cap">${b.cap}</div><div class="abs cli">${b.cli}</div>` +
+      b.cards.map(([im,x,y,w,h,r])=>`<div class="card" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;transform:rotate(${r}deg)"><img src="img/${im}.jpg"></div>`).join('');
+    host.appendChild(g);
+  });
+  const groups = $$('#beats .grp');
+  const marks = D.s4.marks.map(m=>V.s4+m);
+  tl.fromTo('#s4 .works',{opacity:0,x:-20},{opacity:1,x:0,duration:.6}, t0+.3);
+  groups.forEach((g,i)=>{
+    const st = i===0 ? t0+.25 : marks[i]-.25;
+    const en = marks[i+1]-.3;
+    const b = BEATS[i];
+    // panel colour sweep
+    tl.fromTo('#panel',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',backgroundColor:b.col,duration:.7,ease:'expo.inOut',
+      immediateRender:false}, st-.05);
+    tl.set(g,{visibility:'visible'}, st);
+    tl.fromTo($$('.idx,.cat,.cap,.cli',g),{opacity:0,y:40},{opacity:1,y:0,duration:.7,stagger:.08,ease:'expo.out'}, st+.2);
+    const cards = $$('.card',g);
+    cards.forEach((c,k)=>{
+      const r = b.cards[k][5];
+      tl.fromTo(c,{x:300,y:120,rotation:r+12,opacity:0,scale:.85},{x:0,y:0,rotation:r,opacity:1,scale:1,duration:.9,ease:'expo.out'}, st+.15+k*.14);
+      tl.to(c,{y:-14,duration:en-st,ease:'none'}, st+1.05+k*.14);
+    });
+    // out
+    tl.to($$('.idx,.cat,.cap,.cli',g),{opacity:0,y:-30,duration:.35,ease:'power2.in',stagger:.03}, en-.1);
+    tl.to(cards,{x:-200,opacity:0,duration:.4,ease:'power2.in',stagger:.05}, en-.15);
+    tl.set(g,{visibility:'hidden'}, en+.4);
+  });
+  // mosaic
+  const imgs = ['web_visual','mv_thumb','kyujin','booth','poster','umeda','sakai','record','pv','signage','gan_thumb','novelty','workin','trick','station'];
+  $('#mosaic').innerHTML = imgs.map(i=>`<div><img src="img/${i}.jpg"></div>`).join('');
+  const mt = marks[4];
+  tl.set('#mos',{visibility:'hidden'},0);
+  tl.to('#panel',{clipPath:'inset(0 0% 0 100%)',duration:.5,ease:'expo.in'}, mt-.6);
+  tl.to('#s4 .works',{opacity:0,duration:.3}, mt-.6);
+  tl.set('#mos',{visibility:'visible'}, mt-.25);
+  tl.fromTo($$('#mosaic div'),{scale:0,opacity:0},{scale:1,opacity:1,duration:.6,ease:'back.out(1.4)',stagger:{each:.035,from:'center',grid:[3,5]}}, mt-.25);
+  tl.fromTo($$('#mosaic img'),{scale:1.25},{scale:1,duration:5.5,ease:'power1.out'}, mt-.25);
+  tl.fromTo('#s4 .mcover',{opacity:0},{opacity:1,duration:.6}, mt+.5);
+  tl.fromTo('#s4 .mtext small',{opacity:0,letterSpacing:'1.2em'},{opacity:1,letterSpacing:'.5em',duration:1,ease:'expo.out'}, mt+.6);
+  tl.fromTo($$('#s4 .mtext .mask>span'),{yPercent:105},{yPercent:0,duration:.9,ease:'expo.out',stagger:.3}, mt+.7);
+}
+
+// =========================================================
+// S5 FLOW
+// =========================================================
+const STEPS = [
+  ['ご相談・リサーチ','広告以外のお困りごとも、何でもご相談ください。','step1'],
+  ['360°の企画提案','直球から変化球まで、最適なプランを練り上げます。','step2'],
+  ['ネットワークで実行','行政・関係各社との連携で、確実に実施します。','step3'],
+  ['分析・報告','結果を検証し、次の一手へつなげます。','step4']];
+function buildS5(){
+  const t0 = T.s5;
+  wipe(t0,'s4','s5');
+  const host = $('#steps');
+  STEPS.forEach(([t,d,im],i)=>{
+    const s=document.createElement('div'); s.className='step'; s.style.left=(140+i*425)+'px';
+    s.innerHTML=`<div class="ybar"></div><div class="circ"><i>Step</i><b>${i+1}</b></div>
+      <div class="ph"><img src="img/${im}.jpg"></div><div class="st">${t}</div><div class="sd">${d}</div>`;
+    host.appendChild(s);
+  });
+  gsap.set('#veil',{opacity:0}); gsap.set(['#pct','#s5 .bigsub'],{opacity:0});
+  tl.fromTo('#s5 .ttl',{opacity:0,x:-30},{opacity:1,x:0,duration:.7,ease:'power3.out'}, t0+.3);
+  tl.fromTo('#s5 .ttljp',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:1,ease:'expo.out'}, t0+.45);
+  const m = D.s5.marks.map(x=>V.s5+x);
+  const times = [m[0]-.1, m[1]-.1, m[1]+3.0, m[2]-.1];
+  tl.fromTo('#s5 .track',{scaleX:0},{scaleX:1,duration:times[3]-times[0]+.6,ease:'power1.inOut'}, times[0]);
+  $$('#s5 .step').forEach((s,i)=>{
+    const t = times[i];
+    tl.fromTo($('.circ',s),{scale:0,rotation:-180},{scale:1,rotation:0,duration:.8,ease:'back.out(2)'}, t);
+    tl.fromTo($('.ybar',s),{scaleX:0},{scaleX:1,duration:.6,ease:'power3.out'}, t+.25);
+    tl.fromTo($('.ph',s),{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)',duration:.8,ease:'expo.out'}, t+.3);
+    tl.fromTo($('.ph img',s),{scale:1.3},{scale:1,duration:2.5,ease:'power2.out'}, t+.3);
+    tl.fromTo([$('.st',s),$('.sd',s)],{opacity:0,y:24},{opacity:1,y:0,duration:.6,stagger:.1,ease:'power3.out'}, t+.5);
+  });
+  // 120% finale
+  const f = V.s5 + D.s5.dur - 2.6;
+  tl.to('#veil',{opacity:1,duration:.5}, f);
+  tl.to('#pct',{opacity:1,duration:.3}, f+.1);
+  tl.fromTo('#pct',{scale:.6},{scale:1,duration:.8,ease:'back.out(1.8)'}, f+.1);
+  const pc={v:100};
+  tl.fromTo(pc,{v:100},{v:120,duration:1.2,ease:'power2.out',onUpdate:()=>{$('#pct').textContent=Math.round(pc.v)+'%'}}, f+.3);
+  tl.fromTo('#s5 .bigsub',{opacity:0,y:30},{opacity:1,y:0,duration:.6,ease:'power3.out'}, f+.6);
+}
+
+// =========================================================
+// S6 CLOSING
+// =========================================================
+function buildS6(){
+  const t0 = T.s6;
+  wipe(t0,'s5','s6');
+  const svg = $('#spark6');
+  const pts = [[120,140,70,'r'],[300,90,50,'o'],[1650,130,80,'y'],[1800,300,45,'b'],[1540,260,40,'g'],
+    [160,880,80,'y'],[340,980,45,'p'],[90,560,45,'b'],[1780,820,70,'b'],[1600,960,45,'r'],[1850,580,40,'p'],[460,170,36,'g'],[1400,90,40,'p'],[520,940,40,'o']];
+  const cr = pts.map(([x,y,s,c])=>addCross(svg,x,y,s,C[c]));
+  cr.forEach((c,i)=>{
+    tl.fromTo(c,{scale:0,rotation:-120,transformOrigin:'50% 50%'},{scale:1,rotation:0,duration:.9,ease:'back.out(2.6)'}, t0+.2+i*.06);
+    tl.to(c,{y:(i%2?12:-12),rotation:(i%3-1)*16,duration:2.4,ease:'sine.inOut',repeat:3,yoyo:true}, t0+1.2+i*.04);
+  });
+  tl.fromTo('#s6 .tag',{opacity:0,y:20},{opacity:1,y:0,duration:.8,ease:'power3.out'}, t0+.5);
+  const chars = splitChars($('#s6copy'),'あなたの想いを、伝わるカタチに。');
+  tl.fromTo(chars,{yPercent:110,opacity:0,filter:'blur(8px)'},{yPercent:0,opacity:1,filter:'blur(0px)',duration:.8,ease:'expo.out',stagger:.06}, V.s6-.05);
+  const lg = V.s6 + D.s6.marks[1];
+  tl.fromTo('#s6 .logo',{clipPath:'inset(0 100% 0 0)',x:-30},{clipPath:'inset(0 0% 0 0)',x:0,duration:1.0,ease:'expo.out'}, lg-.15);
+  tl.fromTo('#s6 .info',{opacity:0,y:20},{opacity:1,y:0,duration:.8,ease:'power3.out'}, lg+.6);
+  tl.to('#fade',{opacity:1,duration:1.0,ease:'power1.in'}, T.end-1.0);
+}
+
+buildS1(); buildS2(); buildS3(); buildS4(); buildS5(); buildS6(); subtitles();
+tl.set({}, {}, T.end);
+
+// preload all glyphs used so fonts are fetched before rendering
+$('#preload').innerHTML = ['','min','en'].map(c=>`<div class="${c}" style="font-weight:400">${document.body.textContent.replace(/[<>]/g,"")}</div><div class="${c}" style="font-weight:700">${document.body.textContent.replace(/[<>]/g,"")}</div><div class="${c}" style="font-weight:900">${document.body.textContent.replace(/[<>]/g,"")}</div><div class="${c}" style="font-weight:800;font-style:italic">${document.body.textContent.replace(/[<>]/g,"")}</div>`).join('')
+  + Object.values(SUBS).flat().join('');
+
+window.seek = t => { tl.seek(t, false); };
+window.ready = (async () => {
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  tl.seek(0);
+  return tl.duration();
+})();
+</script>
+</body>
+</html>
