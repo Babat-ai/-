@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Days 9.20–9.24</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Zen+Maru+Gothic:wght@500&display=swap" rel="stylesheet">
+
+<!-- ===================== CSS: 見た目 ===================== -->
+<style>
+  :root {
+    --bg: #0b0d14;
+    --text: #f5f1ea;
+    --muted: rgba(245, 241, 234, .65);
+    --accent: #8fd3ff;
+    --serif: "Cormorant Garamond", "Shippori Mincho", serif;
+    --sans: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 1枚のスライド。全部重ねて置き、表示中(.active)だけ不透明にする */
+  .slide {
+    position: fixed; inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; }
+
+  /* 背景:同じ写真を大きくぼかして敷く(縦横どちらの写真でも余白がきれい) */
+  .slide .blur {
+    position: absolute; inset: -40px;
+    background-size: cover; background-position: center;
+    filter: blur(40px) brightness(.45) saturate(1.2);
+  }
+  /* 本体の写真:画面に収まるサイズで中央に */
+  .slide .photo {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 4vh 4vw 16vh;
+    transform: scale(1);
+  }
+  /* ケン・バーンズ効果:表示中にゆっくりズーム */
+  .slide.active .photo { animation: kenburns 7s ease-out forwards; }
+  @keyframes kenburns { to { transform: scale(1.06); } }
+
+  /* 写真の下のキャプション */
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 6vh;
+    text-align: center; padding: 0 16px;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .8s ease .5s, transform .8s ease .5s;
+  }
+  .slide.active .caption { opacity: 1; transform: none; }
+  .caption .chapter {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(14px, 2.2vw, 18px);
+    color: var(--accent); letter-spacing: .12em;
+  }
+  .caption .text {
+    font-size: clamp(18px, 3.4vw, 28px);
+    margin-top: 4px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.6);
+  }
+
+  /* タイトル/エンディング用(写真なし)スライド */
+  .card {
+    display: grid; place-items: center; text-align: center;
+    background: radial-gradient(ellipse at 50% 40%, #1d2a4a 0%, var(--bg) 70%);
+  }
+  .card h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(44px, 10vw, 96px); line-height: 1;
+  }
+  .card .sub {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(18px, 3.5vw, 28px);
+    color: var(--accent); margin-top: 16px; letter-spacing: .1em;
+  }
+  .card .note { margin-top: 28px; color: var(--muted); font-size: 14px; }
+
+  /* 上部の進行バー */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--accent); width: 0; z-index: 10;
+  }
+
+  /* 操作ボタン */
+  .controls {
+    position: fixed; right: 16px; top: 14px; z-index: 10;
+    display: flex; gap: 8px; align-items: center;
+    font-size: 13px; color: var(--muted);
+  }
+  .controls button {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(0,0,0,.35); color: var(--text);
+    font-size: 14px; cursor: pointer;
+  }
+  .controls button:hover { background: rgba(255,255,255,.15); }
+
+  /* 左右の大きなクリック領域(前へ/次へ) */
+  .nav { position: fixed; top: 0; bottom: 0; width: 30%; z-index: 5; cursor: pointer; }
+  .nav.prev { left: 0; } .nav.next { right: 0; }
+
+  /* 動きを減らす設定の人にはアニメーションを控える */
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .caption { transition: none; }
+    .slide.active .photo { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HTML: 骨組み ===================== -->
+<div class="progress" id="progress"></div>
+<div class="controls">
+  <span id="counter"></span>
+  <button id="playBtn" aria-label="一時停止">❚❚</button>
+</div>
+<div id="stage"></div>
+<div class="nav prev" id="navPrev" aria-hidden="true"></div>
+<div class="nav next" id="navNext" aria-hidden="true"></div>
+
+<!-- ===================== JavaScript: 動き ===================== -->
+<script>
+  // ★ ここを書き換えればスライドの順番・文章を変えられます
+  const slides = [
+    { type: "card", title: "Our Days", sub: "2026 . 9 . 20 — 9 . 24", note: "← → キー / タップで操作できます" },
+    { src: "photos/01.jpg", chapter: "Night View Dinner", text: "夜景を見ながら、みんなでディナー" },
+    { src: "photos/02.jpg", chapter: "Café", text: "さくらんぼのせ、レトロなプリン" },
+    { src: "photos/03.jpg", chapter: "Aquarium", text: "まあるい水槽の前で" },
+    { src: "photos/04.jpg", chapter: "Aquarium", text: "もう一枚!" },
+    { src: "photos/05.jpg", chapter: "Aquarium", text: "見とれる背中" },
+    { src: "photos/06.jpg", chapter: "Aquarium", text: "青い光の中で" },
+    { src: "photos/07.jpg", chapter: "Aquarium", text: "鏡の世界でパシャリ" },
+    { src: "photos/08.jpg", chapter: "Home", text: "まったり、おうち時間" },
+    { src: "photos/09.jpg", chapter: "Perfume Lab", text: "白衣を着て、香りづくり体験" },
+    { src: "photos/12.jpg", chapter: "Perfume Lab", text: "What scent do you choose?" },
+    { src: "photos/10.jpg", chapter: "Perfume Lab", text: "ふたりだけの香り「feel 6」" },
+    { src: "photos/11.jpg", chapter: "Festival", text: "メガネコンビでお祭りへ" },
+    { type: "card", title: "Thank you", sub: "for the five days", note: "また次のデートも楽しみに" },
+  ];
+
+  const DURATION = 5000; // 1枚あたりの表示時間(ミリ秒)
+
+  const stage = document.getElementById("stage");
+  const progress = document.getElementById("progress");
+  const counter = document.getElementById("counter");
+  const playBtn = document.getElementById("playBtn");
+
+  // 1) データからスライドのHTML要素を作る
+  const els = slides.map((s) => {
+    const el = document.createElement("div");
+    if (s.type === "card") {
+      el.className = "slide card";
+      el.innerHTML = `<div><h1>${s.title}</h1><div class="sub">${s.sub}</div><div class="note">${s.note}</div></div>`;
+    } else {
+      el.className = "slide";
+      el.innerHTML = `
+        <div class="blur" style="background-image:url('${s.src}')"></div>
+        <img class="photo" src="${s.src}" alt="${s.text}">
+        <div class="caption"><div class="chapter">${s.chapter}</div><div class="text">${s.text}</div></div>`;
+    }
+    stage.appendChild(el);
+    return el;
+  });
+
+  // 2) 何枚目を表示するか切り替える
+  let current = 0;
+  let playing = true;
+  let timer = null;
+
+  function show(i) {
+    els[current].classList.remove("active");
+    current = (i + els.length) % els.length; // 最後の次は最初に戻る
+    els[current].classList.add("active");
+    counter.textContent = `${current + 1} / ${els.length}`;
+    restartProgress();
+  }
+
+  // 3) 進行バーと自動再生
+  function restartProgress() {
+    clearTimeout(timer);
+    progress.style.transition = "none";
+    progress.style.width = "0";
+    if (!playing) return;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      progress.style.transition = `width ${DURATION}ms linear`;
+      progress.style.width = "100%";
+    }));
+    timer = setTimeout(() => show(current + 1), DURATION);
+  }
+
+  function togglePlay() {
+    playing = !playing;
+    playBtn.textContent = playing ? "❚❚" : "▶";
+    playBtn.setAttribute("aria-label", playing ? "一時停止" : "再生");
+    restartProgress();
+  }
+
+  // 4) 操作:クリック・キーボード・スワイプ
+  document.getElementById("navPrev").onclick = () => show(current - 1);
+  document.getElementById("navNext").onclick = () => show(current + 1);
+  playBtn.onclick = togglePlay;
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") show(current + 1);
+    if (e.key === "ArrowLeft") show(current - 1);
+    if (e.key === " ") { e.preventDefault(); togglePlay(); }
+  });
+
+  let touchX = null;
+  document.addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; });
+  document.addEventListener("touchend", (e) => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+
+  show(0);
+</script>
+</body>
+</html>
