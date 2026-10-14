@@ -3,10 +3,13 @@ import subprocess, sys
 import numpy as np
 from PIL import Image, ImageFilter
 
-W, H, FPS, SEC = 1920, 1080, 30, 3.0   # 画面サイズ(16:9)・コマ数/秒・長さ
-SLOT_W, SLOT_H = 580, 326              # 写真1枚の大きさ(16:9)
-GAP = 40                                # 写真どうしのすき間
-FEATHER = 45                            # 周りをぼかす幅(px)
+W, H, FPS, SEC = 1920, 1080, 30, 6.0   # 画面サイズ(16:9)・コマ数/秒・長さ
+SLOT_W, SLOT_H = 760, 428              # 写真1枚の大きさ(16:9)
+FEATHER = 55                            # 周りをぼかす幅(px)
+FADE = 1.6                              # 1枚がフェードインにかける秒数
+INTERVAL = 1.1                          # 次の写真が出てくるまでの間隔(秒)
+# 写真の中心位置: 左下 → 上の真ん中 → 右下 の三角形
+CENTERS = [(520, 760), (960, 300), (1400, 760)]
 
 def load(path):
     """写真を16:9に切り抜き、周りがふわっと消えるマスクを付ける"""
@@ -32,9 +35,6 @@ def ease_out(t):
 
 photos = [load(p) for p in sys.argv[1:4]]
 out = sys.argv[4]
-total_w = SLOT_W * 3 + GAP * 2
-x0 = (W - total_w) // 2
-cy = H // 2
 
 ff = subprocess.Popen([
     "ffmpeg", "-y", "-loglevel", "error",
@@ -46,17 +46,19 @@ for f in range(int(FPS * SEC)):
     t = f / FPS
     frame = Image.new("RGB", (W, H), (0, 0, 0))     # 黒背景
     for i, ph in enumerate(photos):
-        start = 0.2 + i * 0.55                      # 左から0.55秒ずつずらして登場
-        p = ease_out((t - start) / 0.9)             # 0.9秒かけてフェードイン
+        start = 0.4 + i * INTERVAL                  # 左→上→右の順にずらして登場
+        p = ease_out((t - start) / FADE)            # FADE秒かけてフェードイン
         if p <= 0:
             continue
-        scale = 1.06 - 0.06 * p                     # 少し大きい状態から元のサイズへ
+        # 登場後は最後までゆっくりズームし続けて、止まって見えないようにする
+        drift = min(max((t - start) / (SEC - start), 0.0), 1.0)
+        scale = 1.06 - 0.06 * p + 0.03 * drift      # 少し大きい状態から元のサイズへ
         sw, sh = int(SLOT_W * scale), int(SLOT_H * scale)
         im = ph.resize((sw, sh), Image.BILINEAR)
         a = np.array(im.getchannel("A"), dtype=np.float32) * p
         im.putalpha(Image.fromarray(a.astype(np.uint8)))
-        cx = x0 + i * (SLOT_W + GAP) + SLOT_W // 2
-        y = cy - sh // 2 + int(20 * (1 - p))        # 少し下から浮き上がる
+        cx, cy = CENTERS[i]
+        y = cy - sh // 2 + int(30 * (1 - p))        # 少し下から浮き上がる
         frame.paste(im, (cx - sw // 2, y), im)
     ff.stdin.write(frame.tobytes())
 
