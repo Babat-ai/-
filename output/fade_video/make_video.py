@@ -3,11 +3,11 @@ import subprocess, sys
 import numpy as np
 from PIL import Image, ImageFilter
 
-W, H, FPS, SEC = 1920, 1080, 30, 6.0   # 画面サイズ(16:9)・コマ数/秒・長さ
+W, H, FPS, SEC = 1920, 1080, 30, 8.0   # 画面サイズ(16:9)・コマ数/秒・長さ
 SLOT_W, SLOT_H = 760, 428              # 写真1枚の大きさ(16:9)
 FEATHER = 55                            # 周りをぼかす幅(px)
-FADE = 1.6                              # 1枚がフェードインにかける秒数
-INTERVAL = 1.1                          # 次の写真が出てくるまでの間隔(秒)
+FADE = 2.0                              # 1枚がフェードインにかける秒数
+INTERVAL = 1.5                          # 次の写真が出てくるまでの間隔(秒)
 # 写真の中心位置: 左下 → 上の真ん中 → 右下 の三角形
 CENTERS = [(520, 760), (960, 300), (1400, 760)]
 
