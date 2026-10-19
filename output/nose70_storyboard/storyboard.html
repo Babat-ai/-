@@ -1,0 +1,334 @@
+<title>能勢町70周年 式典記録映像 絵コンテ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 撮影現場で使う「絵コンテ用紙」— 左に16:9のコマ、右に指示。上部に3分の尺バー */
+:root {
+  --bg: #f8f7fb;
+  --paper: #ffffff;
+  --ink: #2a2438;
+  --muted: #6b6480;
+  --line: #ddd7e8;
+  --accent: #6a54ad;
+  --accent-soft: #ece7f8;
+  --gold: #a88a2c;
+  --aqua: #2aa5b2;
+  --sky: #e6eef6;
+  --warm: #e9a64a;
+  --sketch: #4a4360;
+  --fill: #e7e3ef;
+  --fill2: #cfc8de;
+  --display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15121c; --paper: #1f1b28; --ink: #ece8f4; --muted: #a49eb6; --line: #383246;
+    --accent: #a793e6; --accent-soft: #2b2540; --gold: #d6b85a; --aqua: #66d0da;
+    --sky: #232c38; --warm: #e8a95a; --sketch: #c9c2dc; --fill: #2c2738; --fill2: #3d3650;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15121c; --paper: #1f1b28; --ink: #ece8f4; --muted: #a49eb6; --line: #383246;
+  --accent: #a793e6; --accent-soft: #2b2540; --gold: #d6b85a; --aqua: #66d0da;
+  --sky: #232c38; --warm: #e8a95a; --sketch: #c9c2dc; --fill: #2c2738; --fill2: #3d3650;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.3; }
+h1 { font-size: clamp(26px, 4.4vw, 40px); font-weight: 800; }
+h2 { font-size: 22px; font-weight: 800; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; color: var(--accent); font-weight: 700; }
+.meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 10px; }
+.meta b { color: var(--ink); font-weight: 500; }
+header { display: flex; flex-direction: column; gap: 4px; padding-bottom: 20px; border-bottom: 2px solid var(--gold); }
+
+/* 尺バー */
+.timeline { display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; height: 44px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.bar a { display: flex; flex-direction: column; justify-content: center; padding: 0 10px; text-decoration: none; color: var(--ink); min-width: 0; font-size: 12px; line-height: 1.3; border-right: 1px solid var(--bg); }
+.bar a:last-child { border-right: 0; }
+.bar a span { font-family: var(--mono); color: var(--muted); font-size: 11px; white-space: nowrap; }
+.bar a strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+.bar a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.p1 { background: var(--accent-soft); }
+.p2 { background: color-mix(in srgb, var(--aqua) 18%, var(--paper)); }
+.p3 { background: color-mix(in srgb, var(--gold) 20%, var(--paper)); }
+.p4 { background: var(--accent-soft); }
+.ticks { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.legend { font-size: 13px; color: var(--muted); }
+
+/* パート */
+section.part { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.part-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.part-head .tc { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+.part-head p { flex-basis: 100%; margin: 0; color: var(--muted); max-width: 65ch; }
+
+/* カット */
+.cut { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.frame { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.frame svg { width: 100%; height: auto; aspect-ratio: 16 / 9; display: block; border: 1.5px solid var(--sketch); border-radius: 3px; background: var(--paper); }
+.frame .cap { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.frame .cap b { color: var(--ink); font-weight: 500; }
+.info { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.info h3 { margin: 0; font-size: 17px; font-weight: 700; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.info h3 .no { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 500; }
+.info dl { margin: 0; display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+.info dt { color: var(--muted); font-size: 12px; letter-spacing: .08em; padding-top: 2px; }
+.info dd { margin: 0; }
+.chip { display: inline-block; font-size: 11px; padding: 0 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); margin-right: 4px; line-height: 1.8; }
+.chip.live { border-color: var(--gold); color: var(--gold); }
+.chip.bgm { border-color: var(--accent); color: var(--accent); }
+
+/* SVGスケッチ */
+.s-line { fill: none; stroke: var(--sketch); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.s-thin { fill: none; stroke: var(--sketch); stroke-width: .7; stroke-linecap: round; }
+.s-fill { fill: var(--fill); stroke: var(--sketch); stroke-width: 1; }
+.s-fill2 { fill: var(--fill2); stroke: var(--sketch); stroke-width: 1; }
+.s-dark { fill: var(--sketch); }
+.s-sky { fill: var(--sky); }
+.s-sun { fill: var(--warm); }
+.s-accent { fill: var(--accent); }
+.s-gold { stroke: var(--gold); stroke-width: 1; fill: none; }
+.s-move { fill: none; stroke: var(--aqua); stroke-width: 1.4; stroke-dasharray: 3 2; }
+.s-arrow { fill: none; stroke: var(--aqua); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.s-lt { fill: var(--accent); opacity: .92; }
+.s-lt-text { fill: #fff; font-size: 5px; font-family: var(--body); font-weight: 700; }
+.s-text { fill: var(--sketch); font-family: var(--body); font-size: 5px; }
+.s-title { fill: var(--accent); font-family: var(--display); font-weight: 800; }
+.s-note { fill: var(--aqua); font-family: var(--body); font-size: 5px; font-weight: 700; }
+
+/* チェックリスト */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.note { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; min-width: 0; }
+.note h3 { margin: 0 0 6px; font-size: 15px; color: var(--accent); }
+.note ul { margin: 0; padding-left: 1.2em; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+
+@media (max-width: 640px) {
+  .cut { grid-template-columns: minmax(0, 1fr); }
+  .bar { height: 56px; }
+  .bar a { padding: 0 4px; }
+  .bar a strong { font-size: 11px; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">記録映像 絵コンテ ／ 尺 3:00</div>
+    <h1>町制施行70周年記念式典 記録映像</h1>
+    <div class="meta">
+      <span>日時 <b>令和8年10月25日（日）</b></span>
+      <span>会場 <b>淨るりシアター</b></span>
+      <span>カット数 <b id="cutCount">—</b></span>
+      <span>構成 <b>OP → 入場 → 式典ハイライト → ED</b></span>
+    </div>
+  </header>
+
+  <div class="timeline" aria-label="3分の尺配分">
+    <div class="bar" id="bar"></div>
+    <div class="ticks"><span>0:00</span><span>0:30</span><span>1:00</span><span>1:30</span><span>2:00</span><span>2:30</span><span>3:00</span></div>
+    <div class="legend">コマ内の水色の点線・矢印はカメラの動き（ズーム・パン）、紫の帯はテロップ位置です。</div>
+  </div>
+
+  <div id="parts"></div>
+
+  <section class="part" id="notes">
+    <div class="part-head"><h2>撮影・編集メモ</h2></div>
+    <div class="notes">
+      <div class="note">
+        <h3>カメラ体制（2台想定）</h3>
+        <ul>
+          <li><b>A カメ</b>：客席後方センターに三脚で固定。ステージ全景を開会から閉会まで回し続ける（保険）。</li>
+          <li><b>B カメ</b>：手持ちか一脚で動く。表情・手元・客席の寄り、ロビーや屋外の実景を担当。</li>
+          <li>1台だけの場合は、表彰と町長式辞のときだけ三脚に据えて寄りで押さえる。</li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>事前に確認すること</h3>
+        <ul>
+          <li>進行台本とタイムテーブル（各プログラムの開始時刻）。</li>
+          <li>受賞者の座席と登壇ルート。表彰の手渡しを正面から撮れる位置を決めておく。</li>
+          <li>70周年記念映像は元データを借りる。スクリーンを撮った映像は画質が落ちるので「見入る客席」用にだけ使う。</li>
+          <li>撮影している旨の掲示（肖像の扱い）。子どもの顔が映るカットは主催者と確認。</li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>撮っておく実景（開場前・閉会後）</h3>
+        <ul>
+          <li>淨るりシアターの外観（朝と夕方の2回）。</li>
+          <li>記念誌、記念ロゴのパネル、70周年キャラクター。</li>
+          <li>受付の手元、ステージの花・看板の寄り。</li>
+          <li>表紙写真「長谷の棚田」の元データ（フォトコンテスト最優秀賞、撮影：長田 健太さん）の使用許可。</li>
+        </ul>
+      </div>
+      <div class="note">
+        <h3>編集のコツ</h3>
+        <ul>
+          <li>挨拶は「一言」だけ声を残し、残りはBGMで流す。3分では長い発言は入らない。</li>
+          <li>合同演奏の音を後半の BGM として流用すると、式典の空気が続いて見える。</li>
+          <li>テロップは記念誌の配色（紫 × 金）に合わせると統一感が出る。</li>
+          <li>名前の漢字は記念誌で確認（例：前田 滿、西浦 德明）。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>出典：町制施行70周年記念式典 記念誌（式次第・表彰者一覧）。来賓・議長の氏名は記念誌に記載がないため当日確認。</footer>
+</div>
+
+<script>
+// ---- スケッチ部品（viewBox 0 0 160 90） ----
+const person = (x, y, s = 1, cls = 's-fill') =>
+  `<g transform="translate(${x} ${y}) scale(${s})"><circle class="${cls}" cx="0" cy="-15" r="4.2"/><path class="${cls}" d="M-7 0 Q-7 -10 0 -10 Q7 -10 7 0 Z"/></g>`;
+const head = (x, y, r = 4, cls = 's-fill2') => `<circle class="${cls}" cx="${x}" cy="${y}" r="${r}"/><path class="${cls}" d="M${x - r * 1.8} ${y + r * 3} Q${x - r * 1.8} ${y + r} ${x} ${y + r} Q${x + r * 1.8} ${y + r} ${x + r * 1.8} ${y + r * 3} Z"/>`;
+const crowd = (y, n, r, x0 = 4, x1 = 156) => {
+  let s = ''; const step = (x1 - x0) / (n - 1);
+  for (let i = 0; i < n; i++) s += head(x0 + i * step + (i % 2 ? 1.5 : -1.5), y + (i % 3) * .8, r);
+  return s;
+};
+const lowerThird = (t1, t2) => `<rect class="s-lt" x="8" y="66" width="${Math.min(144, Math.max(t1.length, (t2 || '').length) * 5.2 + 10)}" height="${t2 ? 17 : 11}" rx="1"/>
+  <text class="s-lt-text" x="13" y="73.5">${t1}</text>${t2 ? `<text class="s-lt-text" x="13" y="80" style="font-weight:400;font-size:4.2px">${t2}</text>` : ''}`;
+const zoom = (x, y, w, h) => `<rect class="s-move" x="${x}" y="${y}" width="${w}" height="${h}"/>
+  <path class="s-arrow" d="M5 5 L${x - 2} ${y - 2} M${x - 7} ${y - 2} L${x - 2} ${y - 2} L${x - 2} ${y - 7}"/>`;
+const pan = (y, dir = 1) => dir > 0
+  ? `<path class="s-arrow" d="M40 ${y} H120 M114 ${y - 4} L120 ${y} L114 ${y + 4}"/>`
+  : `<path class="s-arrow" d="M120 ${y} H40 M46 ${y - 4} L40 ${y} L46 ${y + 4}"/>`;
+const note = (x, y, t) => `<text class="s-note" x="${x}" y="${y}">${t}</text>`;
+const stageFrame = () => `<rect class="s-dark" x="0" y="0" width="160" height="8" opacity=".85"/><path class="s-line" d="M0 60 H160"/><rect class="s-fill" x="0" y="60" width="160" height="30"/>`;
+
+const SK = {
+  building: () => `<rect class="s-sky" width="160" height="90"/><circle class="s-sun" cx="128" cy="20" r="7"/>
+    <path class="s-fill2" d="M0 52 Q30 34 60 46 Q95 30 130 44 Q148 38 160 42 V90 H0Z" opacity=".6"/>
+    <rect class="s-fill" x="42" y="34" width="76" height="38"/><path class="s-line" d="M38 34 H122 M42 46 H118"/>
+    <rect class="s-fill2" x="70" y="56" width="20" height="16"/><text class="s-text" x="80" y="42" text-anchor="middle">淨るりシアター</text>
+    <path class="s-line" d="M0 72 H160"/><circle class="s-fill2" cx="22" cy="60" r="8"/><path class="s-line" d="M22 68 V72"/><circle class="s-fill2" cx="140" cy="62" r="6"/><path class="s-line" d="M140 68 V72"/>`,
+  photo: () => `<rect class="s-sky" width="160" height="90"/><circle class="s-sun" cx="50" cy="30" r="9"/>
+    <path class="s-fill2" d="M0 44 Q40 30 80 40 Q120 28 160 38 V90 H0Z"/>
+    <path class="s-thin" d="M0 58 Q60 50 160 60 M0 66 Q70 58 160 70 M0 75 Q80 66 160 80 M0 84 Q90 76 160 89"/>
+    <path class="s-fill" d="M20 52 l8 -7 l8 7 v6 h-16z"/>${zoom(40, 22, 70, 40)}${note(112, 86, 'ゆっくりズーム')}`,
+  title: () => `<rect class="s-sky" width="160" height="90" opacity=".5"/>
+    <path class="s-gold" d="M0 70 L160 30"/><path class="s-gold" d="M20 90 L160 55" opacity=".6"/>
+    <text class="s-title" x="80" y="38" text-anchor="middle" font-size="14">NICE 70th NOSE</text>
+    <text class="s-text" x="80" y="50" text-anchor="middle" font-size="6.5" style="font-weight:700">町制施行70周年記念式典</text>
+    <text class="s-text" x="80" y="59" text-anchor="middle">令和8年10月25日　淨るりシアター</text>`,
+  reception: () => `<rect class="s-fill2" x="0" y="50" width="160" height="40"/><path class="s-line" d="M0 50 H160"/>
+    <rect class="s-fill" x="62" y="38" width="28" height="20" transform="rotate(-6 76 48)"/><text class="s-text" x="76" y="49" text-anchor="middle" transform="rotate(-6 76 48)">記念誌</text>
+    <ellipse class="s-fill" cx="56" cy="50" rx="10" ry="5"/><path class="s-fill" d="M0 54 Q30 46 50 50 L48 58 Q30 58 0 64Z"/>
+    <ellipse class="s-fill" cx="98" cy="46" rx="10" ry="5"/><path class="s-fill" d="M160 50 Q130 42 106 46 L108 54 Q130 54 160 60Z"/>${note(6, 12, '手元アップ')}`,
+  lobby: () => `<rect class="s-fill" x="92" y="8" width="56" height="60"/><text class="s-title" x="120" y="36" text-anchor="middle" font-size="13">70th</text><text class="s-text" x="120" y="48" text-anchor="middle">記念ロゴ・キャラ</text>
+    ${person(40, 82, 2.1)}${person(66, 84, 2.3)}${person(118, 88, 1.9, 's-fill2')}<rect class="s-dark" x="22" y="48" width="10" height="7" rx="1"/><path class="s-line" d="M0 86 H160"/>`,
+  audienceBack: () => `<rect class="s-dark" x="30" y="6" width="100" height="30" opacity=".8"/><rect class="s-fill" x="40" y="14" width="80" height="22"/>
+    ${crowd(48, 11, 3.2, 10, 150)}${crowd(60, 9, 4, 6, 154)}${crowd(74, 7, 5.2, 2, 158)}${note(6, 12, 'タイムラプス')}`,
+  stageWide: () => `${stageFrame()}<rect class="s-fill2" x="10" y="8" width="18" height="52"/><rect class="s-fill2" x="132" y="8" width="18" height="52"/>
+    <rect class="s-fill" x="45" y="12" width="70" height="8"/><text class="s-text" x="80" y="17.8" text-anchor="middle">町制施行70周年記念式典</text>
+    <rect class="s-fill" x="100" y="40" width="12" height="20"/><circle class="s-fill2" cx="40" cy="52" r="7"/><path class="s-line" d="M40 59 V60"/>`,
+  puppet: () => `<rect class="s-dark" width="160" height="90" opacity=".85"/>
+    <path class="s-fill2" d="M100 10 q14 -4 18 10 v50 h-30 v-50 q2 -8 12 -10z" opacity=".55"/>
+    <path class="s-gold" d="M72 14 L80 2 L88 14Z"/><circle class="s-fill" cx="80" cy="22" r="8"/>
+    <path class="s-fill" d="M62 34 Q80 26 98 34 L110 60 Q80 70 50 60Z"/><path class="s-gold" d="M66 40 L94 40 M64 48 L96 48"/>
+    <circle class="s-sun" cx="112" cy="40" r="2"/><circle class="s-sun" cx="115" cy="43" r="2"/><circle class="s-sun" cx="110" cy="44" r="2"/>${note(6, 84, '鈴の音から入る')}`,
+  standing: () => `${stageFrame()}<rect class="s-fill" x="60" y="20" width="40" height="30"/>
+    ${[...Array(9)].map((_, i) => person(12 + i * 17, 88, 1.25, 's-fill2')).join('')}`,
+  podium: (lt) => `<rect class="s-fill2" x="0" y="0" width="160" height="90" opacity=".5"/><rect class="s-fill" x="20" y="8" width="120" height="10"/><text class="s-text" x="80" y="14.8" text-anchor="middle">町制施行70周年記念式典</text>
+    ${person(80, 66, 2.6)}<path class="s-fill" d="M58 60 H102 L98 90 H62Z"/><path class="s-line" d="M80 46 L74 34"/><circle class="s-dark" cx="74" cy="33" r="1.5"/>${lt ? lowerThird(...lt) : ''}`,
+  twoShot: () => `${person(45, 70, 2.2)}<path class="s-fill" d="M28 64 H62 L60 90 H30Z"/>${person(118, 74, 2.2, 's-fill2')}<path class="s-fill" d="M100 68 H136 L134 90 H102Z"/>
+    <path class="s-line" d="M80 4 V86" stroke-dasharray="2 2"/>${note(64, 10, '左右で2人')}`,
+  award: () => `${stageFrame()}${person(50, 72, 2.4)}${person(112, 72, 2.4, 's-fill2')}
+    <rect class="s-fill" x="70" y="38" width="22" height="16"/><text class="s-text" x="81" y="47.5" text-anchor="middle">表彰状</text>
+    <path class="s-gold" d="M80 22 v-6 M70 26 l-4 -4 M92 26 l4 -4" stroke-width="1.4"/>${lowerThird('自治功労者表彰', '上森 一成 ／ 長尾 義和 ／ 西河 巧')}`,
+  group: () => `${stageFrame()}${[...Array(6)].map((_, i) => person(24 + i * 22, 52, 1.4, 's-fill2')).join('')}${[...Array(5)].map((_, i) => person(35 + i * 22, 66, 1.5)).join('')}
+    ${lowerThird('町長表彰', '子ども食堂る・る・る ほか')}`,
+  applause: () => `${crowd(40, 6, 6, 14, 146)}<ellipse class="s-fill" cx="30" cy="28" rx="4" ry="6" transform="rotate(-20 30 28)"/><ellipse class="s-fill" cx="38" cy="27" rx="4" ry="6" transform="rotate(20 38 27)"/>
+    <ellipse class="s-fill" cx="104" cy="30" rx="4" ry="6" transform="rotate(-20 104 30)"/><ellipse class="s-fill" cx="112" cy="29" rx="4" ry="6" transform="rotate(20 112 29)"/>${crowd(72, 5, 8, 10, 150)}`,
+  band: () => `${stageFrame()}${[...Array(7)].map((_, i) => person(14 + i * 22, 50, 1.1, 's-fill2')).join('')}
+    ${[...Array(6)].map((_, i) => person(24 + i * 22, 62, 1.3)).join('')}<circle class="s-fill2" cx="140" cy="44" r="6"/><circle class="s-fill2" cx="128" cy="46" r="5"/>
+    ${person(80, 88, 2)}<path class="s-line" d="M88 68 L98 58"/>${pan(84, 1)}`,
+  screen: () => `<rect class="s-dark" width="160" height="90" opacity=".85"/><rect class="s-sky" x="28" y="8" width="104" height="52"/><circle class="s-sun" cx="60" cy="24" r="5"/>
+    <path class="s-fill2" d="M28 40 Q60 30 90 38 Q115 30 132 36 V60 H28Z"/>${crowd(78, 6, 7, 6, 154)}`,
+  students: () => `${stageFrame()}${person(56, 66, 1.8)}${person(80, 66, 1.8, 's-fill2')}${person(104, 66, 1.8)}
+    <path class="s-line" d="M80 66 V44"/><circle class="s-dark" cx="80" cy="42" r="2"/>${lowerThird('未来へのメッセージ', '大阪府立豊中高校 能勢分校生')}`,
+  bow: () => `${stageFrame()}<g transform="translate(80 60) rotate(28)"><circle class="s-fill" cx="0" cy="-34" r="7"/><path class="s-fill" d="M-12 0 Q-12 -24 0 -24 Q12 -24 12 0Z"/></g>
+    <path class="s-fill" d="M110 40 H130 L128 60 H112Z"/>`,
+  exit: () => `<rect class="s-fill2" x="0" y="0" width="160" height="90" opacity=".4"/><rect class="s-sky" x="54" y="10" width="52" height="60"/><path class="s-line" d="M80 10 V70"/>
+    ${person(70, 72, 1.5, 's-fill2')}${person(92, 74, 1.6, 's-fill2')}${person(36, 88, 2.2)}${person(126, 88, 2.2)}<path class="s-line" d="M0 72 H160"/>`,
+  dusk: () => `<rect class="s-sky" width="160" height="90"/><circle class="s-sun" cx="30" cy="46" r="10"/>
+    <path class="s-fill2" d="M0 56 Q40 44 80 50 Q120 40 160 48 V90 H0Z"/><rect class="s-dark" x="62" y="30" width="70" height="40" opacity=".8"/>
+    ${person(40, 82, .9, 's-dark')}${person(48, 82, .8, 's-dark')}${person(54, 83, .9, 's-dark')}<path class="s-line" d="M0 72 H160"/>${pan(14, -1)}`,
+  endcard: () => `<path class="s-gold" d="M0 80 L160 40"/><path class="s-gold" d="M40 90 L160 60" opacity=".6"/>
+    <text class="s-text" x="80" y="30" text-anchor="middle" font-size="6">探してみよう、あなたのナイッす。</text>
+    <text class="s-title" x="80" y="48" text-anchor="middle" font-size="14">NICE 70th NOSE</text>
+    <text class="s-text" x="80" y="58" text-anchor="middle">能勢町 町制施行70周年</text>`
+};
+
+// ---- 絵コンテのデータ（秒数の合計 = 180秒） ----
+const PARTS = [
+  { id: 'op', cls: 'p1', name: 'オープニング', lead: '会場の外観と町の風景から入り、タイトルを出す。明るく短く。', cuts: [
+    { sec: 5, sk: 'building', t: '会場外観', v: '朝の淨るりシアター。空と山並みを入れて、町の空気を見せる。', cam: 'ワイド・三脚固定（ドローンが使えれば俯瞰）', tel: 'なし', au: ['bgm', 'BGMフェードイン（明るいアコースティック）'] },
+    { sec: 5, sk: 'photo', t: '記念誌の表紙写真', v: 'フォトコンテスト最優秀作品「長谷の棚田」の朝日。', cam: '静止画をゆっくりズームイン', tel: '小さく「写真：長田 健太（長谷の棚田）」', au: ['bgm', 'BGM'] },
+    { sec: 5, sk: 'title', t: 'タイトル', v: '記念ロゴと式典名・日付・会場。紫と金のライン。', cam: '編集で作成', tel: '町制施行70周年記念式典／令和8年10月25日　淨るりシアター', au: ['bgm', 'BGM'] },
+  ]},
+  { id: 'entry', cls: 'p2', name: '開場・入場', lead: '開演前のにぎわい。人の手元や笑顔を寄りで集める。', cuts: [
+    { sec: 7, sk: 'reception', t: '受付', v: '受付で記念誌を手渡す手元。', cam: '手元のアップ（B カメ手持ち）', tel: 'なし', au: ['bgm', 'BGM＋会場のざわめきを薄く'] },
+    { sec: 8, sk: 'lobby', t: 'ロビー', v: '記念ロゴや70周年キャラのパネル前で記念撮影する来場者。', cam: 'ミドルショット、ゆっくり横移動', tel: 'なし', au: ['bgm', 'BGM'] },
+    { sec: 8, sk: 'audienceBack', t: '客席が埋まっていく', v: 'ステージ方向を後ろから。席が埋まっていく様子。', cam: 'A カメ固定でタイムラプス（開場〜開演の30分を8秒に）', tel: 'なし', au: ['bgm', 'BGM'] },
+    { sec: 7, sk: 'stageWide', t: '開演直前のステージ', v: '式典看板と花のあるステージ全景。客電が落ちる瞬間で切る。', cam: 'ワイド固定', tel: 'なし', au: ['bgm', 'BGMを絞って会場音へ'] },
+  ]},
+  { id: 'highlight', cls: 'p3', name: '式典ハイライト', lead: '式次第の順に、各プログラムの「一番いい瞬間」をつなぐ。表彰と記念映像に尺を多めに配分。', cuts: [
+    { sec: 3, sk: 'stageWide', t: '開会', v: '司会の開会宣言。ステージ全景。', cam: 'A カメのワイド', tel: 'なし', au: ['live', '現場音'] },
+    { sec: 12, sk: 'puppet', t: 'オープニング 能勢三番叟', v: '能勢人形浄瑠璃 鹿角座。人形の顔・鈴・袖の動きを寄りで。遣い手の手元も1カット。', cam: 'B カメで寄り（望遠）、A カメでステージ全体', tel: 'オープニング　能勢三番叟（のせさんばそう）／能勢人形浄瑠璃 鹿角座', au: ['live', '囃子と鈴の音をそのまま'] },
+    { sec: 4, sk: 'standing', t: '第一部 式典・国歌斉唱', v: '会場全体が起立している様子。', cam: 'ワイド', tel: '第一部　式典', au: ['live', '斉唱の音（短く）'] },
+    { sec: 12, sk: 'podium', lt: ['能勢町長　岡田 正文', '70周年を新たな出発点として'], t: '町長式辞', v: '演台の町長。印象的な一言だけ声を残す。', cam: 'バストショット（正面やや斜め）', tel: '能勢町長　岡田 正文', au: ['live', '式辞の一言 → BGMへ'] },
+    { sec: 8, sk: 'twoShot', t: '議長挨拶・来賓祝辞', v: '町議会議長と来賓を4秒ずつ。', cam: 'バストショット', tel: '町議会議長 挨拶／来賓祝辞（氏名は当日確認）', au: ['bgm', 'BGM（声は入れない）'] },
+    { sec: 12, sk: 'award', t: '自治功労者表彰', v: '表彰状を手渡す瞬間と、受け取った後の一礼。', cam: '正面から手渡しを狙う。B カメは受賞者の表情', tel: '自治功労者表彰　上森 一成／長尾 義和／西河 巧', au: ['live', '拍手を生かす'] },
+    { sec: 15, sk: 'group', t: '町長表彰', v: '前田 滿さん、子ども食堂る・る・る、家庭教育支援チーム「ほっこり」、食育推進ボランティア、楽歩の会。受賞者ごとに約3秒。', cam: '手渡しの寄り＋団体の並び', tel: '町長表彰　各受賞者名を順に表示', au: ['live', '拍手＋BGM'] },
+    { sec: 5, sk: 'applause', t: '客席の拍手', v: '拍手する来場者の笑顔・手元。', cam: '客席を横から、手持ち', tel: 'なし', au: ['live', '拍手'] },
+    { sec: 15, sk: 'band', t: '第二部 合同演奏', v: '豊中市消防音楽隊と能勢ささゆり学園後期課程 吹奏楽部。指揮者 → 楽器の寄り → 全景。', cam: 'B カメで横移動しながら寄り、最後に A カメの全景', tel: '第二部　合同演奏　豊中市消防音楽隊 ＆ 能勢ささゆり学園後期課程 吹奏楽部', au: ['live', '演奏の音をそのまま（ここから後半のBGMに流用）'] },
+    { sec: 10, sk: 'screen', t: '70周年記念映像の上映', v: 'スクリーンに見入る客席の横顔・後ろ姿。映像そのものは元データから2〜3秒差し込む。', cam: '客席の後方・斜め後ろから', tel: '町制施行70周年記念映像', au: ['bgm', '記念映像の音 or 演奏音'] },
+    { sec: 10, sk: 'students', t: '未来へのメッセージ', v: '能勢分校の生徒の発表。一番まっすぐな一言を残す。', cam: 'ミドル〜バスト', tel: '未来へのメッセージ　大阪府立豊中高校 能勢分校生', au: ['live', '生徒の声（一言）'] },
+    { sec: 4, sk: 'podium', lt: ['主催者謝辞'], t: '主催者謝辞', v: '謝辞の締めの一礼。', cam: 'バストショット', tel: '主催者謝辞', au: ['bgm', 'BGM'] },
+  ]},
+  { id: 'ed', cls: 'p4', name: 'エンディング', lead: '閉会から外へ。夕方の会場で余韻を残し、ロゴで締める。', cuts: [
+    { sec: 8, sk: 'exit', t: '閉会・退場', v: '閉会の一礼 → 会場を出る来場者の笑顔。', cam: 'ロビー出口を正面から', tel: 'なし', au: ['bgm', 'エンディングBGM（OPと同じ曲の後半）'] },
+    { sec: 7, sk: 'dusk', t: '夕方の会場外観', v: '帰っていく人と淨るりシアター。OP の朝の外観と対にする。', cam: 'ワイド、ゆっくり左へパン', tel: 'なし', au: ['bgm', 'BGM'] },
+    { sec: 10, sk: 'endcard', t: 'エンドカード', v: '記念ロゴとキャッチコピー。', cam: '編集で作成', tel: '探してみよう、あなたのナイッす。／能勢町 町制施行70周年', au: ['bgm', 'BGMフェードアウト'] },
+  ]},
+];
+
+const tc = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+let t = 0, no = 0, html = '', bar = '';
+const total = PARTS.flatMap(p => p.cuts).reduce((a, c) => a + c.sec, 0);
+for (const p of PARTS) {
+  const start = t, len = p.cuts.reduce((a, c) => a + c.sec, 0);
+  bar += `<a class="${p.cls}" href="#${p.id}" style="flex:${len}"><strong>${p.name}</strong><span>${len}秒</span></a>`;
+  let cards = '';
+  for (const c of p.cuts) {
+    no++;
+    const sketch = SK[c.sk](c.lt);
+    cards += `<article class="cut">
+      <div class="frame"><svg viewBox="0 0 160 90" role="img" aria-label="${c.t}のコマ">${sketch}</svg>
+        <div class="cap"><b>C${String(no).padStart(2, '0')}</b><span>${tc(t)} – ${tc(t + c.sec)}</span><b>${c.sec}秒</b></div></div>
+      <div class="info"><h3><span class="no">CUT ${String(no).padStart(2, '0')}</span>${c.t}</h3>
+        <dl><dt>映像</dt><dd>${c.v}</dd><dt>カメラ</dt><dd>${c.cam}</dd><dt>テロップ</dt><dd>${c.tel}</dd>
+        <dt>音</dt><dd><span class="chip ${c.au[0]}">${c.au[0] === 'live' ? '現場音' : 'BGM'}</span>${c.au[1]}</dd></dl></div>
+    </article>`;
+    t += c.sec;
+  }
+  html += `<section class="part" id="${p.id}"><div class="part-head"><h2>${p.name}</h2><span class="tc">${tc(start)} – ${tc(t)}（${len}秒）</span><p>${p.lead}</p></div>${cards}</section>`;
+}
+document.getElementById('parts').innerHTML = html;
+document.getElementById('bar').innerHTML = bar;
+document.getElementById('cutCount').textContent = `${no}カット（合計 ${tc(total)}）`;
+</script>
