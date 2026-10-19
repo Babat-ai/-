@@ -169,9 +169,9 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
         <h3>撮っておく実景（開場前・閉会後）</h3>
         <ul>
           <li>淨るりシアターの外観（朝と夕方の2回）。</li>
-          <li>記念誌、記念ロゴのパネル、70周年キャラクター。</li>
-          <li>受付の手元、ステージの花・看板の寄り。</li>
-          <li>表紙写真「長谷の棚田」の元データ（フォトコンテスト最優秀賞、撮影：長田 健太さん）の使用許可。</li>
+          <li>ローカルヒーローのポスター（全員分を1枚ずつ正面から。人が少ない開場前に）。</li>
+          <li>記念ロゴのパネル、70周年キャラクター、ステージの花・看板の寄り。</li>
+          <li>裏表紙の写真「長谷の棚田」の元データ（フォトコンテスト最優秀賞、撮影：長田 健太さん）の使用許可。</li>
         </ul>
       </div>
       <div class="note">
@@ -180,7 +180,7 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
           <li>挨拶は「一言」だけ声を残し、残りはBGMで流す。3分では長い発言は入らない。</li>
           <li>合同演奏の音を後半の BGM として流用すると、式典の空気が続いて見える。</li>
           <li>テロップは記念誌の配色（紫 × 金）に合わせると統一感が出る。</li>
-          <li>名前の漢字は記念誌で確認（例：前田 滿、西浦 德明）。</li>
+          <li>名前の漢字は記念誌で確認（例：前田 滿、西浦 德明、元古 隆博）。</li>
         </ul>
       </div>
     </div>
@@ -224,10 +224,9 @@ const SK = {
     <text class="s-title" x="80" y="38" text-anchor="middle" font-size="14">NICE 70th NOSE</text>
     <text class="s-text" x="80" y="50" text-anchor="middle" font-size="6.5" style="font-weight:700">町制施行70周年記念式典</text>
     <text class="s-text" x="80" y="59" text-anchor="middle">令和8年10月25日　淨るりシアター</text>`,
-  reception: () => `<rect class="s-fill2" x="0" y="50" width="160" height="40"/><path class="s-line" d="M0 50 H160"/>
-    <rect class="s-fill" x="62" y="38" width="28" height="20" transform="rotate(-6 76 48)"/><text class="s-text" x="76" y="49" text-anchor="middle" transform="rotate(-6 76 48)">記念誌</text>
-    <ellipse class="s-fill" cx="56" cy="50" rx="10" ry="5"/><path class="s-fill" d="M0 54 Q30 46 50 50 L48 58 Q30 58 0 64Z"/>
-    <ellipse class="s-fill" cx="98" cy="46" rx="10" ry="5"/><path class="s-fill" d="M160 50 Q130 42 106 46 L108 54 Q130 54 160 60Z"/>${note(6, 12, '手元アップ')}`,
+  posters: () => `<rect class="s-fill2" x="0" y="0" width="160" height="90" opacity=".35"/>
+    ${[0, 1, 2, 3].map(i => `<rect class="s-fill" x="${10 + i * 37}" y="8" width="30" height="42"/>${head(25 + i * 37, 22, 4.5)}<text class="s-text" x="${25 + i * 37}" y="45" text-anchor="middle" font-size="3.6">ローカルヒーロー</text>`).join('')}
+    ${person(118, 92, 2.6, 's-fill2')}<path class="s-line" d="M0 58 H160"/>${pan(64, 1)}${note(6, 86, 'ポスターを順にパン')}`,
   lobby: () => `<rect class="s-fill" x="92" y="8" width="56" height="60"/><text class="s-title" x="120" y="36" text-anchor="middle" font-size="13">70th</text><text class="s-text" x="120" y="48" text-anchor="middle">記念ロゴ・キャラ</text>
     ${person(40, 82, 2.1)}${person(66, 84, 2.3)}${person(118, 88, 1.9, 's-fill2')}<rect class="s-dark" x="22" y="48" width="10" height="7" rx="1"/><path class="s-line" d="M0 86 H160"/>`,
   audienceBack: () => `<rect class="s-dark" x="30" y="6" width="100" height="30" opacity=".8"/><rect class="s-fill" x="40" y="14" width="80" height="22"/>
@@ -276,13 +275,12 @@ const SK = {
 // ---- 絵コンテのデータ（秒数の合計 = 180秒） ----
 const PARTS = [
   { id: 'op', cls: 'p1', name: 'オープニング', lead: '会場の外観と町の風景から入り、タイトルを出す。明るく短く。', cuts: [
-    { sec: 5, sk: 'building', t: '会場外観', v: '朝の淨るりシアター。空と山並みを入れて、町の空気を見せる。', cam: 'ワイド・三脚固定（ドローンが使えれば俯瞰）', tel: 'なし', au: ['bgm', 'BGMフェードイン（明るいアコースティック）'] },
-    { sec: 5, sk: 'photo', t: '記念誌の表紙写真', v: 'フォトコンテスト最優秀作品「長谷の棚田」の朝日。', cam: '静止画をゆっくりズームイン', tel: '小さく「写真：長田 健太（長谷の棚田）」', au: ['bgm', 'BGM'] },
-    { sec: 5, sk: 'title', t: 'タイトル', v: '記念ロゴと式典名・日付・会場。紫と金のライン。', cam: '編集で作成', tel: '町制施行70周年記念式典／令和8年10月25日　淨るりシアター', au: ['bgm', 'BGM'] },
+    { sec: 8, sk: 'building', t: '会場外観', v: '朝の淨るりシアター。空と山並みを入れて、町の空気を見せる。', cam: 'ワイド・三脚固定、空から建物へゆっくりティルトダウン（ドローンが使えれば俯瞰）', tel: 'なし', au: ['bgm', 'BGMフェードイン（明るいアコースティック）'] },
+    { sec: 7, sk: 'title', t: 'タイトル', v: '記念ロゴと式典名・日付・会場。紫と金のライン。', cam: '編集で作成', tel: '町制施行70周年記念式典／令和8年10月25日　淨るりシアター', au: ['bgm', 'BGM'] },
   ]},
   { id: 'entry', cls: 'p2', name: '開場・入場', lead: '開演前のにぎわい。人の手元や笑顔を寄りで集める。', cuts: [
-    { sec: 7, sk: 'reception', t: '受付', v: '受付で記念誌を手渡す手元。', cam: '手元のアップ（B カメ手持ち）', tel: 'なし', au: ['bgm', 'BGM＋会場のざわめきを薄く'] },
-    { sec: 8, sk: 'lobby', t: 'ロビー', v: '記念ロゴや70周年キャラのパネル前で記念撮影する来場者。', cam: 'ミドルショット、ゆっくり横移動', tel: 'なし', au: ['bgm', 'BGM'] },
+    { sec: 8, sk: 'posters', t: 'ローカルヒーローのポスター', v: 'ロビーに掲示されたローカルヒーロー（インタビューした方々）のポスター。足を止めて見入る来場者を手前に入れる。', cam: 'ポスターを1枚ずつ横にパン → 最後に見ている人の肩越し', tel: 'なし（ポスターの文字を読ませる）', au: ['bgm', 'BGM＋会場のざわめきを薄く'] },
+    { sec: 7, sk: 'lobby', t: 'ロビー', v: '記念ロゴや70周年キャラのパネル前で記念撮影する来場者。', cam: 'ミドルショット、ゆっくり横移動', tel: 'なし', au: ['bgm', 'BGM'] },
     { sec: 8, sk: 'audienceBack', t: '客席が埋まっていく', v: 'ステージ方向を後ろから。席が埋まっていく様子。', cam: 'A カメ固定でタイムラプス（開場〜開演の30分を8秒に）', tel: 'なし', au: ['bgm', 'BGM'] },
     { sec: 7, sk: 'stageWide', t: '開演直前のステージ', v: '式典看板と花のあるステージ全景。客電が落ちる瞬間で切る。', cam: 'ワイド固定', tel: 'なし', au: ['bgm', 'BGMを絞って会場音へ'] },
   ]},
@@ -301,9 +299,10 @@ const PARTS = [
     { sec: 4, sk: 'podium', lt: ['主催者謝辞'], t: '主催者謝辞', v: '謝辞の締めの一礼。', cam: 'バストショット', tel: '主催者謝辞', au: ['bgm', 'BGM'] },
   ]},
   { id: 'ed', cls: 'p4', name: 'エンディング', lead: '閉会から外へ。夕方の会場で余韻を残し、ロゴで締める。', cuts: [
-    { sec: 8, sk: 'exit', t: '閉会・退場', v: '閉会の一礼 → 会場を出る来場者の笑顔。', cam: 'ロビー出口を正面から', tel: 'なし', au: ['bgm', 'エンディングBGM（OPと同じ曲の後半）'] },
-    { sec: 7, sk: 'dusk', t: '夕方の会場外観', v: '帰っていく人と淨るりシアター。OP の朝の外観と対にする。', cam: 'ワイド、ゆっくり左へパン', tel: 'なし', au: ['bgm', 'BGM'] },
-    { sec: 10, sk: 'endcard', t: 'エンドカード', v: '記念ロゴとキャッチコピー。', cam: '編集で作成', tel: '探してみよう、あなたのナイッす。／能勢町 町制施行70周年', au: ['bgm', 'BGMフェードアウト'] },
+    { sec: 7, sk: 'exit', t: '閉会・退場', v: '閉会の一礼 → 会場を出る来場者の笑顔。', cam: 'ロビー出口を正面から', tel: 'なし', au: ['bgm', 'エンディングBGM（OPと同じ曲の後半）'] },
+    { sec: 6, sk: 'dusk', t: '夕方の会場外観', v: '帰っていく人と淨るりシアター。OP の朝の外観と対にする。', cam: 'ワイド、ゆっくり左へパン', tel: 'なし', au: ['bgm', 'BGM'] },
+    { sec: 7, sk: 'photo', t: 'フォトコンテスト最優秀作品', v: '記念誌の裏表紙を飾る「長谷の棚田」の朝日。式典の余韻から町の風景へ戻す。', cam: '静止画をゆっくりズームイン', tel: '「大好きな能勢町。」／写真：長田 健太（長谷の棚田）70周年記念フォトコンテスト最優秀賞', au: ['bgm', 'BGM'] },
+    { sec: 5, sk: 'endcard', t: 'エンドカード', v: '記念ロゴとキャッチコピー。', cam: '編集で作成', tel: '探してみよう、あなたのナイッす。／能勢町 町制施行70周年', au: ['bgm', 'BGMフェードアウト'] },
   ]},
 ];
 
