@@ -1,0 +1,5 @@
+input/*
+!input/.gitkeep
+work/
+output/
+bgm.*
