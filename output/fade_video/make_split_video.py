@@ -3,21 +3,23 @@ import subprocess, sys
 import numpy as np
 from PIL import Image, ImageFilter, ImageEnhance
 
-W, H, FPS, SEC = 1920, 1080, 30, 8.0   # 画面サイズ(16:9)・コマ数/秒・長さ
-FADE = 2.0                              # 1枚がフェードインにかける秒数
-INTERVAL = 1.5                          # 次の写真が出てくるまでの間隔(秒)
+W, H, FPS, SEC = 1920, 1080, 30, 8.3   # 画面サイズ(16:9)・コマ数/秒・長さ
+FADE = 3.0                              # フェードインにかける秒数
+INTERVAL = 0.0                          # 次の写真が出てくるまでの間隔(秒)。0なら3枚同時
 SEAM = 40                               # 写真の境目をぼかす幅(px)
 # 写真を置く場所 (x, y, 幅, 高さ): 左半分 → 右上 → 右下
 PANELS = [(0, 0, 960, 1080), (960, 0, 960, 540), (960, 540, 960, 540)]
+# 上下を切り落とすとき、どこを残すか (0=上を残す, 0.5=真ん中, 1=下を残す)
+ANCHOR_Y = [0.85, 0.5, 0.5]                 # 木の写真は根元の幹が見えるよう下寄せ
 
-def cover(img, w, h):
+def cover(img, w, h, ay=0.5):
     """写真を w×h の枠いっぱいになるよう、はみ出た部分を切り落として拡大・縮小する"""
     r = w / h
     iw, ih = img.size
     if iw / ih > r:
         nw = ih * r; img = img.crop((int((iw - nw) / 2), 0, int((iw + nw) / 2), ih))
     else:
-        nh = iw / r; img = img.crop((0, int((ih - nh) / 2), iw, int((ih + nh) / 2)))
+        nh = iw / r; top = (ih - nh) * ay; img = img.crop((0, int(top), iw, int(top + nh)))
     return img.resize((int(w), int(h)), Image.LANCZOS)
 
 def expanded(rect):
@@ -40,24 +42,25 @@ def seam_mask(ex, ey, ew, eh):
     ay = ramp(eh, ey > 0, ey + eh < H)
     return np.outer(ay, ax)[:, :, None]
 
-def ease_out(t):
+def ease_in_out(t):
+    """ゆっくり始まって、ゆっくり終わる変化(0→1)"""
     t = min(max(t, 0.0), 1.0)
-    return 1 - (1 - t) ** 3
+    return t * t * (3 - 2 * t)
 
 photos = [Image.open(p).convert("RGB") for p in sys.argv[1:4]]
 out = sys.argv[4]
 
 panels = []
-for ph, rect in zip(photos, PANELS):
+for ph, rect, ay in zip(photos, PANELS, ANCHOR_Y):
     ex, ey, ew, eh = expanded(rect)
-    big = cover(ph, ew * 1.1, eh * 1.1)             # ズーム用に1.1倍大きく用意しておく
+    big = cover(ph, ew * 1.1, eh * 1.1, ay)             # ズーム用に1.1倍大きく用意しておく
     big = big.filter(ImageFilter.UnsharpMask(radius=2, percent=60, threshold=2))
     panels.append(dict(pos=(ex, ey), size=(ew, eh), big=big, mask=seam_mask(ex, ey, ew, eh)))
 
 # 背景: 3枚を並べた絵を強くぼかして暗くしたもの(黒背景の代わり)
 bg = Image.new("RGB", (W, H))
-for ph, (x, y, w, h) in zip(photos, PANELS):
-    bg.paste(cover(ph, w, h), (x, y))
+for ph, (x, y, w, h), ay in zip(photos, PANELS, ANCHOR_Y):
+    bg.paste(cover(ph, w, h, ay), (x, y))
 bg = bg.filter(ImageFilter.GaussianBlur(40))
 bg = ImageEnhance.Brightness(bg).enhance(0.35)
 bg = np.asarray(bg, dtype=np.float32)
@@ -72,8 +75,8 @@ for f in range(int(FPS * SEC)):
     t = f / FPS
     frame = bg.copy()
     for i, pn in enumerate(panels):
-        start = 0.4 + i * INTERVAL                  # 左 → 右上 → 右下 の順に登場
-        p = ease_out((t - start) / FADE)
+        start = 0.4 + i * INTERVAL                  # INTERVAL=0 なら3枚とも同時に登場
+        p = ease_in_out((t - start) / FADE)
         if p <= 0:
             continue
         drift = min(max((t - start) / (SEC - start), 0.0), 1.0)
