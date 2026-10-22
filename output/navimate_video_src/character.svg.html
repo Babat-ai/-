@@ -1,0 +1,118 @@
+<svg id="chara" style="overflow:visible" viewBox="0 0 600 900" width="600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gBlazer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A3A63"/><stop offset="1" stop-color="#1B2644"/>
+    </linearGradient>
+    <linearGradient id="gHair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A332C"/><stop offset="1" stop-color="#2E1F1B"/>
+    </linearGradient>
+    <linearGradient id="gSkin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCE3D3"/><stop offset="1" stop-color="#F7D2BD"/>
+    </linearGradient>
+  </defs>
+  <g id="body">
+    <!-- 後ろ髪 -->
+    <g id="hairBackG">
+      <path d="M188 236 Q176 108 300 102 Q424 108 412 236 Q414 320 428 372 Q434 404 404 410 Q384 410 372 392 Q300 330 228 392 Q216 410 196 410 Q166 404 172 372 Q186 320 188 236 Z" fill="url(#gHair)"/>
+    </g>
+    <!-- 首 -->
+    <path d="M272 350 L272 440 Q300 458 328 440 L328 350 Z" fill="#F0C3A9"/>
+    <!-- 左腕（静止） -->
+    <g id="armL" transform="translate(178 528) rotate(6)">
+      <path d="M-34 14 Q-34 -26 0 -28 Q34 -26 34 14 Q34 180 28 420 L-28 420 Q-40 180 -34 14 Z" fill="#1F2C50"/>
+    </g>
+    <!-- 右腕（ジェスチャー） -->
+    <g id="armR" transform="translate(422 528)">
+      <g id="armRU">
+        <path d="M-32 14 Q-32 -26 0 -28 Q32 -26 32 14 Q36 100 30 205 L-30 205 Q-38 100 -32 14 Z" fill="#1F2C50"/>
+        <g id="armRF" transform="translate(0 195)">
+          <path d="M-28 -6 L-26 160 L26 160 L28 -6 Z" fill="#22305A"/>
+          <rect x="-27" y="148" width="54" height="18" rx="4" fill="#FFFFFF"/>
+          <g transform="translate(0 168)">
+            <path d="M-22 0 Q-26 34 -10 52 Q0 60 12 52 Q26 36 22 0 Z" fill="#F7D2BD"/>
+            <path d="M22 8 Q38 14 40 28 Q34 32 22 24 Z" fill="#F3C9B1"/>
+          </g>
+        </g>
+      </g>
+    </g>
+    <!-- 胴体・ジャケット -->
+    <path d="M140 900 L144 600 Q146 490 236 448 L300 472 L364 448 Q454 490 456 600 L460 900 Z" fill="url(#gBlazer)"/>
+    <!-- ブラウス -->
+    <path d="M244 444 L300 590 L356 444 L330 436 L300 470 L270 436 Z" fill="#FFFFFF"/>
+    <path d="M270 436 L300 470 L286 492 L256 452 Z M330 436 L300 470 L314 492 L344 452 Z" fill="#EEF1F7"/>
+    <!-- ラペル -->
+    <path d="M236 440 L300 640 L282 560 L250 532 L270 506 L226 452 Z" fill="#15203B"/>
+    <path d="M364 440 L300 640 L318 560 L350 532 L330 506 L374 452 Z" fill="#15203B"/>
+    <!-- ボタン -->
+    <circle cx="300" cy="700" r="7" fill="#C9A86A"/>
+    <circle cx="300" cy="790" r="7" fill="#C9A86A"/>
+    <!-- ネックストラップ＆社員証 -->
+    <path d="M262 448 Q262 560 290 650" stroke="#2EC4B6" stroke-width="7" fill="none"/>
+    <path d="M338 448 Q338 560 310 650" stroke="#2EC4B6" stroke-width="7" fill="none"/>
+    <g transform="translate(300 690) rotate(-3)">
+      <rect x="-46" y="-42" width="92" height="116" rx="10" fill="#FFFFFF" stroke="#DDE3EE" stroke-width="2"/>
+      <rect x="-46" y="-42" width="92" height="26" rx="10" fill="#2EC4B6"/>
+      <rect x="-46" y="-26" width="92" height="10" fill="#2EC4B6"/>
+      <text x="0" y="-24" text-anchor="middle" font-family="Montserrat" font-weight="800" font-size="12" fill="#fff" letter-spacing="1">NAVI MATE</text>
+      <circle cx="0" cy="14" r="17" fill="#FFE3DF"/>
+      <path d="M-11 22 Q0 4 11 22" fill="#FF8C7E"/>
+      <circle cx="0" cy="8" r="7" fill="#FF8C7E"/>
+      <rect x="-30" y="42" width="60" height="7" rx="3.5" fill="#1E2A4A"/>
+      <rect x="-22" y="55" width="44" height="5" rx="2.5" fill="#C5CBD8"/>
+    </g>
+    <!-- 頭 -->
+    <g id="head">
+      <ellipse cx="208" cy="282" rx="14" ry="22" fill="#F3C9B1"/>
+      <ellipse cx="392" cy="282" rx="14" ry="22" fill="#F3C9B1"/>
+      <circle cx="207" cy="312" r="5" fill="#FFFFFF" stroke="#E7DCCB" stroke-width="1.5"/>
+      <circle cx="393" cy="312" r="5" fill="#FFFFFF" stroke="#E7DCCB" stroke-width="1.5"/>
+      <path d="M212 240 Q210 350 300 388 Q390 350 388 240 Q384 150 300 148 Q216 150 212 240 Z" fill="url(#gSkin)"/>
+      <!-- 頬 -->
+      <ellipse cx="246" cy="318" rx="20" ry="11" fill="#FF8C7E" opacity=".28"/>
+      <ellipse cx="354" cy="318" rx="20" ry="11" fill="#FF8C7E" opacity=".28"/>
+      <!-- 眉 -->
+      <path id="browL" d="M234 230 Q254 216 276 224" stroke="#3B2722" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path id="browR" d="M324 224 Q346 216 366 230" stroke="#3B2722" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <!-- 目 -->
+      <g id="eyeL" transform="translate(258 270)">
+        <g class="eyeIn">
+          <ellipse cx="0" cy="2" rx="17" ry="15" fill="#FFFFFF"/>
+          <ellipse cx="1" cy="3" rx="11.5" ry="14" fill="#4A2F28"/>
+          <ellipse cx="1" cy="6" rx="6.5" ry="8" fill="#26160F"/>
+          <circle cx="-3" cy="-3" r="4.2" fill="#FFFFFF"/>
+          <circle cx="5" cy="9" r="1.8" fill="#FFFFFF" opacity=".8"/>
+        </g>
+        <path d="M-19 -8 Q0 -20 19 -7" stroke="#2A1A15" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M-18 -9 L-25 -13" stroke="#2A1A15" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+      <g id="eyeR" transform="translate(342 270)">
+        <g class="eyeIn">
+          <ellipse cx="0" cy="2" rx="17" ry="15" fill="#FFFFFF"/>
+          <ellipse cx="-1" cy="3" rx="11.5" ry="14" fill="#4A2F28"/>
+          <ellipse cx="-1" cy="6" rx="6.5" ry="8" fill="#26160F"/>
+          <circle cx="-5" cy="-3" r="4.2" fill="#FFFFFF"/>
+          <circle cx="3" cy="9" r="1.8" fill="#FFFFFF" opacity=".8"/>
+        </g>
+        <path d="M-19 -7 Q0 -20 19 -8" stroke="#2A1A15" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M18 -9 L25 -13" stroke="#2A1A15" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+      <!-- 鼻 -->
+      <path d="M302 300 Q306 310 298 314" stroke="#E2A58C" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- 口 -->
+      <g id="mouth" transform="translate(300 340)">
+        <path id="mSmile" d="M-16 -2 Q0 12 16 -2" stroke="#C9544A" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <g id="mOpen">
+          <path id="mOpenP" d="M-14 -3 Q0 -6 14 -3 Q12 14 0 15 Q-12 14 -14 -3 Z" fill="#B8423A"/>
+          <path id="mTongue" d="M-8 9 Q0 3 8 9 Q4 14 0 14 Q-4 14 -8 9 Z" fill="#F08C83"/>
+          <path d="M-12 -3 Q0 -5 12 -3 L11 1 Q0 -1 -11 1 Z" fill="#FFFFFF"/>
+        </g>
+      </g>
+      <!-- 前髪 -->
+      <path d="M204 266 Q194 134 300 122 Q406 128 400 266 Q394 214 362 176 Q306 216 238 222 Q214 236 204 266 Z" fill="url(#gHair)"/>
+      <path d="M362 176 Q390 206 396 254 Q382 222 352 200 Z" fill="#3A2823"/>
+      <path d="M206 250 Q202 300 214 344 Q204 350 194 344 Q184 300 190 244 Z" fill="url(#gHair)"/>
+      <path d="M394 250 Q398 300 386 344 Q396 350 406 344 Q416 300 410 244 Z" fill="url(#gHair)"/>
+      <path d="M246 150 Q296 132 350 150" stroke="#7A5A4E" stroke-width="5" stroke-linecap="round" fill="none" opacity=".55"/>
+    </g>
+  </g>
+</svg>

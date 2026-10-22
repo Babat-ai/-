@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>なびメイト紹介動画</title>
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-kaku-gothic-new/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/800.css">
+<link rel="stylesheet" href="node_modules/@fontsource/montserrat/900.css">
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<style>
+:root{
+  --navy:#1E2A4A; --ink:#28304A; --sub:#7A8199; --line:#E3E7F0;
+  --mint:#2EC4B6; --mintD:#1FA396; --mintL:#DDF6F2;
+  --coral:#FF6F61; --coralL:#FFE6E2; --gold:#FFC24B; --bg:#F4F6FB;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+body{font-family:'Zen Kaku Gothic New',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.en{font-family:'Montserrat',sans-serif}
+.maru{font-family:'Zen Maru Gothic',sans-serif}
+.abs{position:absolute}
+
+/* 背景 */
+#bg{position:absolute;inset:0;overflow:hidden}
+#bg .dots{position:absolute;inset:0;background-image:radial-gradient(#D5DBE8 1.6px,transparent 1.6px);background-size:34px 34px;opacity:.55}
+.blob{position:absolute;border-radius:50%;filter:blur(80px)}
+#halo{position:absolute;left:30px;top:150px;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle at 50% 45%,#FFFFFF 0%,#E4F7F4 55%,rgba(221,246,242,0) 72%)}
+
+/* キャラクター */
+#charaWrap{position:absolute;left:-10px;top:186px;width:600px;height:900px;z-index:20;transform-origin:300px 900px}
+#nameTag{position:absolute;left:40px;top:1000px;z-index:25;background:#fff;border-radius:40px;padding:10px 26px 10px 16px;
+  box-shadow:0 10px 30px rgba(30,42,74,.18);display:flex;align-items:center;gap:12px;font-weight:700;font-size:24px;color:var(--navy)}
+#nameTag b{font-family:'Montserrat';font-weight:800;font-size:14px;letter-spacing:.18em;color:#fff;background:var(--mint);border-radius:20px;padding:5px 12px}
+
+/* シーン */
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;visibility:hidden;z-index:10}
+.stage{position:absolute;left:680px;top:70px;width:1190px;height:840px}
+
+/* 字幕 */
+#sub{position:absolute;left:680px;width:1190px;top:930px;height:100px;z-index:60;display:flex;align-items:center;justify-content:center}
+#sub span{display:inline-block;max-width:1190px;background:rgba(30,42,74,.92);color:#fff;font-size:33px;font-weight:700;letter-spacing:.04em;
+  line-height:1.45;padding:14px 36px;border-radius:22px;text-align:center;text-wrap:balance;box-shadow:0 14px 34px rgba(30,42,74,.25)}
+#sub span em{font-style:normal;color:#7FF0E4}
+
+/* 共通パーツ */
+.kicker{font-family:'Montserrat';font-weight:800;font-size:20px;letter-spacing:.32em;color:var(--mint)}
+.h1{font-weight:900;font-size:64px;letter-spacing:.04em;color:var(--navy);line-height:1.25}
+.card{position:absolute;background:#fff;border-radius:28px;box-shadow:0 24px 60px rgba(30,42,74,.12),0 4px 12px rgba(30,42,74,.06)}
+.ic{display:inline-flex;align-items:center;justify-content:center;border-radius:50%}
+.ic svg{width:56%;height:56%}
+.pill{display:inline-flex;align-items:center;gap:14px;background:#fff;border-radius:60px;padding:14px 30px 14px 14px;font-size:28px;font-weight:700;
+  box-shadow:0 12px 30px rgba(30,42,74,.10)}
+.pill .ic{width:52px;height:52px;background:var(--mintL);color:var(--mintD)}
+.hl{background:linear-gradient(transparent 62%,#FFE08A 62%)}
+
+/* オープニング */
+#sc-op .logoMark{left:20px;top:150px;width:120px;height:120px;border-radius:34px;background:var(--mint);color:#fff;box-shadow:0 20px 40px rgba(46,196,182,.35)}
+#sc-op .logoMark svg{width:64%;height:64%}
+#sc-op .kick{left:24px;top:310px}
+#sc-op .title{left:14px;top:340px;font-family:'Zen Maru Gothic';font-weight:900;font-size:178px;letter-spacing:.04em;color:var(--navy);line-height:1.2;white-space:nowrap}
+#sc-op .title small{font-size:40px;color:var(--sub);font-weight:700;margin-left:10px;letter-spacing:0}
+#sc-op .tag{left:24px;top:570px;font-size:34px;font-weight:700;color:var(--ink);line-height:1.6}
+#sc-op .pills{left:20px;top:700px;width:1190px;display:flex;gap:14px}
+#sc-op .pill{font-size:25px;padding:12px 24px 12px 12px;gap:10px}
+#sc-op .pill .ic{width:46px;height:46px}
+
+/* お悩み */
+#sc-pain .h1{left:0;top:40px}
+.bubble{position:absolute;width:360px;height:300px;background:#fff;border-radius:40px;box-shadow:0 24px 60px rgba(30,42,74,.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.bubble:after{content:"";position:absolute;left:46px;bottom:-26px;border:20px solid transparent;border-top:30px solid #fff;border-bottom:0;transform:skewX(20deg)}
+.bubble .ic{width:120px;height:120px;background:var(--coralL);color:var(--coral)}
+.bubble p{font-size:34px;font-weight:900;color:var(--navy)}
+.bubble .q{position:absolute;right:30px;top:18px;font-family:'Montserrat';font-weight:900;font-size:60px;color:var(--gold)}
+
+/* なぜ */
+.col{position:absolute;top:20px;width:560px;height:650px;border-radius:32px;padding:38px 40px}
+.col .lab{font-family:'Montserrat';font-weight:800;font-size:22px;letter-spacing:.3em}
+.col .ttl{font-size:40px;font-weight:900;margin-top:6px}
+.flow{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.node{display:flex;align-items:center;gap:16px;font-size:27px;font-weight:700;background:#fff;border-radius:18px;padding:8px 18px}
+.node .ic{width:48px;height:48px;flex:none}
+.arrow{width:0;height:0;margin-left:38px;border-left:12px solid transparent;border-right:12px solid transparent;border-top:14px solid currentColor;opacity:.5}
+.tags{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+.tags span{font-size:21px;font-weight:700;border-radius:30px;padding:7px 18px}
+#colA{left:0;background:#E9ECF3;color:#596079}
+#colA .node .ic{background:#DDE1EA;color:#7A8199}
+#colA .tags span{background:#fff;color:#8A90A5}
+#colB{left:620px;background:var(--mintL);color:var(--navy)}
+#colB .lab{color:var(--mintD)}
+#colB .node .ic{background:var(--mint);color:#fff}
+#colB .tags span{background:var(--mint);color:#fff}
+#sc-why .quote{left:0;top:700px;width:1180px;height:116px;border-radius:30px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:52px;font-weight:900;letter-spacing:.06em}
+#sc-why .quote b{color:var(--gold)}
+
+/* できること */
+#sc-can .h1{left:0;top:20px}
+.feat{position:absolute;width:570px;height:270px;padding:40px 44px;display:flex;gap:34px;align-items:center}
+.feat .ic{width:130px;height:130px;flex:none}
+.feat .en{font-weight:800;font-size:20px;letter-spacing:.3em;color:var(--sub)}
+.feat h3{font-size:62px;font-weight:900;color:var(--navy);letter-spacing:.08em;line-height:1.2}
+.feat p{font-size:27px;font-weight:700;color:var(--sub);margin-top:6px}
+#sc-can .foot{left:0;top:760px;width:1180px;text-align:center;font-size:40px;font-weight:900;color:var(--navy)}
+#sc-can .foot b{color:var(--coral)}
+
+/* 利用イメージ */
+.use .chip{left:0;top:30px;display:inline-flex;gap:14px;align-items:center;background:var(--navy);color:#fff;border-radius:40px;padding:10px 26px;font-size:24px;font-weight:700}
+.use .chip b{font-family:'Montserrat';font-weight:800;letter-spacing:.2em;color:var(--gold);font-size:18px}
+.use .h1{left:0;top:96px;font-size:58px}
+.steps{position:absolute;left:0;top:270px;width:1180px;display:flex;align-items:center;justify-content:space-between}
+.step{width:250px;height:290px;border-radius:30px;background:#fff;box-shadow:0 24px 60px rgba(30,42,74,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;position:relative}
+.step .n{position:absolute;top:18px;left:22px;font-family:'Montserrat';font-weight:900;font-size:22px;color:var(--mint);letter-spacing:.1em}
+.step .ic{width:110px;height:110px;background:var(--mintL);color:var(--mintD)}
+.step p{font-size:29px;font-weight:900;color:var(--navy);text-align:center;line-height:1.35}
+.step.last{background:var(--mint)}
+.step.last .ic{background:#fff}
+.step.last p,.step.last .n{color:#fff}
+.chev{width:34px;height:34px;border-top:7px solid #C8CFDD;border-right:7px solid #C8CFDD;transform:rotate(45deg);border-radius:3px}
+.use .phrase{left:0;top:640px;width:1180px;text-align:center;font-family:'Zen Maru Gothic';font-weight:900;font-size:76px;color:var(--navy);letter-spacing:.04em}
+.use .phrase b{color:var(--coral)}
+
+/* チャプター */
+.chap .panel{position:absolute;left:640px;top:0;width:1280px;height:1080px;background:var(--navy)}
+.chap .part{left:740px;top:300px;font-family:'Montserrat';font-weight:900;font-size:40px;letter-spacing:.4em;color:var(--mint)}
+.chap .num{left:730px;top:340px;font-family:'Montserrat';font-weight:900;font-size:210px;line-height:1;color:transparent;-webkit-text-stroke:3px rgba(255,255,255,.35)}
+.chap .ttl{left:740px;top:580px;font-weight:900;font-size:86px;color:#fff;letter-spacing:.06em;line-height:1.25}
+.chap .ttl small{display:block;font-size:40px;color:#AEB8D3;font-weight:700;letter-spacing:.1em;margin-bottom:8px}
+
+/* 画面紹介シーン */
+.scr .hdr{left:0;top:0;width:1190px;height:110px;display:flex;align-items:center;gap:22px}
+.scr .no{font-family:'Montserrat';font-weight:900;font-size:68px;color:var(--mint);line-height:1;letter-spacing:-.02em}
+.scr .hb{display:flex;flex-direction:column;gap:4px}
+.scr .side{display:inline-flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--sub);letter-spacing:.06em}
+.scr .side i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.scr .ttl{font-size:50px;font-weight:900;color:var(--navy);letter-spacing:.04em;line-height:1.15}
+.win{position:absolute;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 70px rgba(30,42,74,.18),0 6px 16px rgba(30,42,74,.08)}
+.win .bar{height:44px;background:#EEF1F7;display:flex;align-items:center;gap:9px;padding:0 18px}
+.win .bar i{width:13px;height:13px;border-radius:50%;display:inline-block}
+.win .bar span{margin-left:14px;flex:1;height:26px;border-radius:13px;background:#fff;font-family:'Montserrat';font-size:14px;color:#9AA1B5;display:flex;align-items:center;padding-left:14px;letter-spacing:.05em}
+.win .vp{position:relative;overflow:hidden;background:#fff}
+.win .vp img{position:absolute;left:0;top:0;transform-origin:0 0}
+.plist{position:absolute;display:flex;flex-direction:column;gap:16px}
+.pt{display:flex;align-items:center;gap:18px;background:#fff;border-radius:20px;padding:16px 24px;box-shadow:0 14px 34px rgba(30,42,74,.10);font-size:27px;font-weight:700;color:var(--navy);line-height:1.35}
+.pt .ck{flex:none;width:40px;height:40px;border-radius:50%;background:var(--mint);color:#fff;display:flex;align-items:center;justify-content:center}
+.pt .ck svg{width:60%;height:60%}
+.pt.red{background:var(--coralL)}
+.pt.red .ck{background:var(--coral)}
+.banner{position:absolute;border-radius:28px;background:var(--coral);color:#fff;display:flex;align-items:center;gap:26px;padding:0 40px;box-shadow:0 24px 50px rgba(255,111,97,.35)}
+.banner .ic{width:84px;height:84px;background:#fff;color:var(--coral);flex:none}
+.banner .bt{font-size:24px;font-weight:700;opacity:.9}
+.banner .bm{font-size:40px;font-weight:900;letter-spacing:.02em}
+.banner .bm b{background:#fff;color:var(--coral);border-radius:12px;padding:0 12px;margin:0 4px}
+
+/* エンディング */
+#sc-end .big{left:0;top:110px;width:1180px;text-align:center}
+#sc-end .big .l1{font-size:54px;font-weight:900;color:var(--sub)}
+#sc-end .big .l2{font-family:'Zen Maru Gothic';font-size:120px;font-weight:900;color:var(--navy);margin-top:10px}
+#sc-end .big .l2 b{color:var(--mint)}
+#sc-end .fb{left:90px;top:150px;width:1000px;height:520px;padding:56px 70px}
+#sc-end .fb .kicker{color:var(--coral)}
+#sc-end .fb h2{font-size:56px;font-weight:900;color:var(--navy);margin-top:8px}
+#sc-end .fb .lead{font-size:28px;font-weight:700;color:var(--sub);margin-top:10px}
+#sc-end .fb .chips{display:flex;gap:18px;margin-top:44px}
+#sc-end .fb .chips div{flex:1;border-radius:24px;background:var(--bg);padding:30px 10px;text-align:center;font-size:25px;font-weight:900;color:var(--navy)}
+#sc-end .fb .chips .ic{width:78px;height:78px;background:var(--coralL);color:var(--coral);margin-bottom:14px}
+#sc-end .thanks{left:0;top:250px;width:1180px;text-align:center}
+#sc-end .thanks .t1{font-family:'Montserrat';font-weight:900;font-size:130px;color:var(--navy);letter-spacing:.02em}
+#sc-end .thanks .t2{font-size:36px;font-weight:700;color:var(--sub);margin-top:6px}
+#sc-end .thanks .t3{display:inline-flex;align-items:center;gap:16px;margin-top:40px;font-family:'Zen Maru Gothic';font-weight:900;font-size:54px;color:var(--navy)}
+#sc-end .thanks .t3 .ic{width:72px;height:72px;border-radius:22px;background:var(--mint);color:#fff}
+</style>
+</head>
+<body>
+<div id="bg">
+  <div class="blob" id="b1" style="left:1350px;top:-220px;width:720px;height:720px;background:#CFF3EE"></div>
+  <div class="blob" id="b2" style="left:-200px;top:640px;width:760px;height:620px;background:#FFE1DB"></div>
+  <div class="blob" id="b3" style="left:900px;top:760px;width:600px;height:500px;background:#FFF1CF;opacity:.7"></div>
+  <div class="dots"></div>
+  <div id="halo"></div>
+</div>
+
+<!-- ===== シーン ===== -->
+<section class="scene" id="sc-op"><div class="stage">
+  <div class="abs ic logoMark a" data-at="0"><i data-icon="compass"></i></div>
+  <div class="abs kicker kick a" data-at="0" data-d=".2">INFORMATION SHARING PLATFORM</div>
+  <div class="abs title a" data-at="0" data-d=".35" data-fx="mask">なびメイト<small>（仮称）</small></div>
+  <div class="abs tag a" data-at="1" data-d="0">住まいセンターと管理サービス事務所をつなぐ<br><span class="hl">情報共有プラットフォーム</span></div>
+  <div class="abs pills">
+    <div class="pill a" data-at="1" data-d="1.4"><span class="ic"><i data-icon="search"></i></span>検索する</div>
+    <div class="pill a" data-at="1" data-d="1.6"><span class="ic"><i data-icon="book"></i></span>マニュアルを見る</div>
+    <div class="pill a" data-at="1" data-d="1.8"><span class="ic"><i data-icon="mega"></i></span>業務連絡を確認する</div>
+    <div class="pill a" data-at="1" data-d="2.0"><span class="ic"><i data-icon="users"></i></span>情報を共有する</div>
+  </div>
+</div></section>
+
+<section class="scene" id="sc-pain"><div class="stage">
+  <div class="abs h1 a" data-at="0">こんなお悩み、<br>ありませんか？</div>
+  <div class="bubble a" data-at="1" data-fx="pop" style="left:0;top:330px"><span class="q">?</span><span class="ic"><i data-icon="mail"></i></span><p>あのメールどこ？</p></div>
+  <div class="bubble a" data-at="2" data-fx="pop" style="left:410px;top:400px"><span class="q">?</span><span class="ic"><i data-icon="folder"></i></span><p>あの資料どこ？</p></div>
+  <div class="bubble a" data-at="3" data-fx="pop" style="left:820px;top:330px"><span class="q">!</span><span class="ic"><i data-icon="phone"></i></span><p>とりあえず電話</p></div>
+</div></section>
+
+<section class="scene" id="sc-why"><div class="stage">
+  <div class="col a" id="colA" data-at="0" data-fx="left">
+    <div class="lab">BEFORE</div><div class="ttl">いまの現状</div>
+    <div class="flow">
+      <div class="node"><span class="ic"><i data-icon="mail"></i></span>メール受信</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="inbox"></i></span>埋もれる</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="search"></i></span>探せない</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="phone"></i></span>問い合わせ</div>
+    </div>
+    <div class="tags"><span>× 電話照会が増加</span><span>× 対応時間が増加</span><span>× 情報が共有されない</span></div>
+  </div>
+  <div class="col a" id="colB" data-at="1" data-fx="right">
+    <div class="lab">AFTER</div><div class="ttl">なびメイトなら</div>
+    <div class="flow">
+      <div class="node"><span class="ic"><i data-icon="compass"></i></span>なびメイト</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="search"></i></span>検索</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="check"></i></span>情報を確認</div><div class="arrow"></div>
+      <div class="node"><span class="ic"><i data-icon="spark"></i></span>自己解決</div>
+    </div>
+    <div class="tags"><span>○ 電話削減</span><span>○ 情報共有の迅速化</span><span>○ 業務の標準化</span></div>
+  </div>
+  <div class="abs quote a" data-at="2" data-fx="pop"><b>「聞いた方が早い」</b>からの脱却</div>
+</div></section>
+
+<section class="scene" id="sc-can"><div class="stage">
+  <div class="abs h1 a" data-at="0">なびメイトで<span style="color:var(--mint)">できること</span></div>
+  <div class="card feat a" data-at="1" data-fx="pop" style="left:0;top:170px"><span class="ic" style="background:var(--mintL);color:var(--mintD)"><i data-icon="search"></i></span><div><div class="en">SEARCH</div><h3>検索</h3><p>必要な情報を探せる</p></div></div>
+  <div class="card feat a" data-at="2" data-fx="pop" style="left:610px;top:170px"><span class="ic" style="background:#E5ECFF;color:#4A6CF7"><i data-icon="layers"></i></span><div><div class="en">MANAGE</div><h3>一元管理</h3><p>情報をひとつにまとめる</p></div></div>
+  <div class="card feat a" data-at="3" data-fx="pop" style="left:0;top:470px"><span class="ic" style="background:#FFF1CF;color:#E0A100"><i data-icon="bell"></i></span><div><div class="en">NOTIFY</div><h3>通知</h3><p>確実に周知できる</p></div></div>
+  <div class="card feat a" data-at="4" data-fx="pop" style="left:610px;top:470px"><span class="ic" style="background:var(--coralL);color:var(--coral)"><i data-icon="eye"></i></span><div><div class="en">CHECK</div><h3>閲覧確認</h3><p>確認状況を把握できる</p></div></div>
+  <div class="abs foot a" data-at="4" data-d="1.6">必要な情報が、必要な時に、<b>すぐ見つかる。</b></div>
+</div></section>
+
+<section class="scene use" id="sc-use1"><div class="stage">
+  <div class="abs chip a" data-at="0"><b>USE CASE 01</b>センター社員の場合</div>
+  <div class="abs h1 a" data-at="0" data-d=".2">大切な業務連絡を、確実に届けたい</div>
+  <div class="steps">
+    <div class="step a" data-at="1" data-d="0" data-fx="pop"><span class="n">01</span><span class="ic"><i data-icon="doc"></i></span><p>業務連絡を<br>登録</p></div><div class="chev a" data-at="1" data-d=".5"></div>
+    <div class="step a" data-at="1" data-d=".8" data-fx="pop"><span class="n">02</span><span class="ic"><i data-icon="bell"></i></span><p>自動で<br>通知</p></div><div class="chev a" data-at="1" data-d="1.3"></div>
+    <div class="step a" data-at="1" data-d="1.8" data-fx="pop"><span class="n">03</span><span class="ic"><i data-icon="eye"></i></span><p>閲覧状況を<br>確認</p></div><div class="chev a" data-at="1" data-d="2.3"></div>
+    <div class="step last a" data-at="1" data-d="2.8" data-fx="pop"><span class="n">04</span><span class="ic"><i data-icon="check"></i></span><p>周知<br>完了！</p></div>
+  </div>
+  <div class="abs phrase a" data-at="2" data-fx="pop">「不安」から<b>「確認」</b>へ</div>
+</div></section>
+
+<section class="scene use" id="sc-use2"><div class="stage">
+  <div class="abs chip a" data-at="0"><b>USE CASE 02</b>事務所スタッフの場合</div>
+  <div class="abs h1 a" data-at="0" data-d=".2">手続きの方法を知りたい</div>
+  <div class="steps">
+    <div class="step a" data-at="0" data-d=".8" data-fx="pop"><span class="n">01</span><span class="ic"><i data-icon="doc"></i></span><p>手続き方法を<br>知りたい</p></div><div class="chev a" data-at="1" data-d="0"></div>
+    <div class="step a" data-at="1" data-d=".2" data-fx="pop"><span class="n">02</span><span class="ic"><i data-icon="search"></i></span><p>なびメイトで<br>検索</p></div><div class="chev a" data-at="1" data-d=".9"></div>
+    <div class="step a" data-at="1" data-d="1.4" data-fx="pop"><span class="n">03</span><span class="ic"><i data-icon="book"></i></span><p>マニュアルを<br>確認</p></div><div class="chev a" data-at="1" data-d="2.1"></div>
+    <div class="step last a" data-at="1" data-d="2.6" data-fx="pop"><span class="n">04</span><span class="ic"><i data-icon="spark"></i></span><p>自己解決！</p></div>
+  </div>
+  <div class="abs phrase a" data-at="2" data-fx="pop">「聞く」から<b>「調べる」</b>へ</div>
+</div></section>
+
+<section class="scene chap" id="sc-ch1">
+  <div class="panel"></div>
+  <div class="abs part a" data-at="0" data-d=".5">PART</div>
+  <div class="abs num a" data-at="0" data-d=".6">01</div>
+  <div class="abs ttl a" data-at="0" data-d=".8"><small>住まいセンター側</small>操作編</div>
+</section>
+<section class="scene chap" id="sc-ch2">
+  <div class="panel"></div>
+  <div class="abs part a" data-at="0" data-d=".5">PART</div>
+  <div class="abs num a" data-at="0" data-d=".6">02</div>
+  <div class="abs ttl a" data-at="0" data-d=".8"><small>管理サービス事務所側</small>操作編</div>
+</section>
+
+<section class="scene" id="sc-end"><div class="stage">
+  <div class="abs big a" data-at="0" data-out="1"><div class="l1">わからないときは、</div><div class="l2">まず、<b>なびメイト。</b></div></div>
+  <div class="card fb a" data-at="1" data-d=".3" data-out="3" data-fx="pop">
+    <div class="kicker">WE NEED YOUR VOICE</div>
+    <h2>ご意見をお聞かせください</h2>
+    <div class="lead">なびメイトは、皆さまの声をもとに進化していきます。</div>
+    <div class="chips">
+      <div class="a" data-at="2" data-d="0" data-fx="pop"><span class="ic"><i data-icon="doc"></i></span><br>掲載してほしい資料</div>
+      <div class="a" data-at="2" data-d="1.2" data-fx="pop"><span class="ic"><i data-icon="plus"></i></span><br>追加してほしい機能</div>
+      <div class="a" data-at="2" data-d="2.2" data-fx="pop"><span class="ic"><i data-icon="spark"></i></span><br>改善してほしい点</div>
+    </div>
+  </div>
+  <div class="abs thanks a" data-at="3" data-d=".3">
+    <div class="t1">Thank you!</div>
+    <div class="t2">ご視聴ありがとうございました</div>
+    <div class="t3"><span class="ic"><i data-icon="compass"></i></span>なびメイト</div>
+  </div>
+</div></section>
+
+<div id="scr-host"></div>
+
+<div id="charaWrap">__CHARA__</div>
+<div id="nameTag"><b>GUIDE</b>案内係 ミサキ</div>
+<div id="sub"><span></span></div>
+
+<script>
+const TL = __TL__;
+const ICON = {
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 5.5Q7.5 3.5 12 6Q16.5 3.5 21 5.5V19Q16.5 17 12 19.5Q7.5 17 3 19Z"/><path d="M12 6V19.5"/></svg>',
+  mega:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 10V14H7L15 19V5L7 10Z"/><path d="M18.5 9Q20.5 12 18.5 15"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20Q3 14 9 14Q15 14 15.5 20"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14Q21 14 21.5 19"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7L12 13L20.5 7"/></svg>',
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 7Q3 5 5 5H9.5L11.5 7.5H19Q21 7.5 21 9.5V17Q21 19 19 19H5Q3 19 3 17Z"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M5 3.5H9L10.5 8L8 9.5Q9.5 13.5 14.5 16L16 13.5L20.5 15V19Q20.5 20.5 19 20.5Q4 19.5 3.5 5Q3.5 3.5 5 3.5Z"/></svg>',
+  inbox:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 13L6 4.5H18L21 13V19H3Z"/><path d="M3 13H8L9.5 15.5H14.5L16 13H21"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5L10 17.5L19.5 7"/></svg>',
+  spark:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14 9.5L21.5 12L14 14.5L12 22L10 14.5L2.5 12L10 9.5Z"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3L21.5 8L12 13L2.5 8Z"/><path d="M2.5 12.5L12 17.5L21.5 12.5"/><path d="M2.5 16.5L12 21.5L21.5 16.5" opacity=".6"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 16V11Q6 5 12 5Q18 5 18 11V16L20 18H4Z"/><path d="M10 20.5Q12 22 14 20.5"/><path d="M12 3V5"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12Q7 5 12 5Q17 5 22 12Q17 19 12 19Q7 19 2 12Z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 3H14L19 8V21H6Z"/><path d="M14 3V8H19"/><path d="M9 13H16M9 17H14"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>',
+  compass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5L13.5 13.5L8.5 15.5L10.5 10.5Z" fill="currentColor"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L22 20H2Z"/><path d="M12 10V14"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
+};
+
+/* ---------- 画面紹介シーンの設定 ----------
+   imgs: [画像, 表示開始の文番号]  zoom: [文番号, 遅延秒, 注目x, 注目y, 倍率]  */
+const C = {side:'住まいセンター側', col:'#2EC4B6'}, O = {side:'管理サービス事務所側', col:'#FF6F61'};
+const SCR = {
+  top:   {g:C,no:'01',ttl:'トップページ', imgs:[['s10',0]], zoom:[[0,0,.5,.5,1],[1,0,.32,.4,1.25]]},
+  reg1:  {g:C,no:'02',ttl:'新規登録をはじめる', imgs:[['s11',0]], zoom:[[0,0,.5,.5,1],[0,1.2,.18,.25,2.0]]},
+  reg2:  {g:C,no:'03',ttl:'登録フォームに入力', layout:'tall', imgs:[['s12',0]], zoom:[[0,0,.5,0,1],[0,3,.5,.45,1],[1,1,.5,1,1]],
+          pts:[[0,.3,'発信者（センター名・課・氏名）'],[0,1.2,'通知する事務所・メール通知'],[0,2.2,'掲載期間・重要度'],[0,3.2,'業務区分・件名・内容'],[1,2.4,'添付ファイル（複数OK）'],[1,0,'赤字の項目は必須','red']]},
+  reg3:  {g:C,no:'04',ttl:'通知と掲載のしくみ', layout:'tall', imgs:[['s13',0]], zoom:[[0,0,.5,.12,1],[1,0,.5,.3,1],[2,0,.5,.45,1],[3,0,.5,1,1]],
+          pts:[[0,0,'全体通知 ＝ 全事務所へ'],[0,2.6,'個別通知 ＝ 事務所を選んで'],[1,0,'掲載終了日で自動削除（履歴は残る）'],[2,0,'件名は検索結果に影響','red'],[3,0,'「確認」→「登録」で完了']]},
+  read:  {g:C,no:'05',ttl:'閲覧状況をチェック', imgs:[['s14',0]], zoom:[[0,0,.5,.5,1],[0,1.4,.68,.3,1.25],[1,1.6,.78,.8,1.5]]},
+  search:{g:C,no:'06',ttl:'フリーワード検索', imgs:[['s15',0]], zoom:[[0,0,.5,.5,1],[0,.8,.45,.3,1.3],[1,0,.55,.78,1.25]]},
+  cat:   {g:C,no:'07',ttl:'カテゴリー検索', imgs:[['s16',0]], zoom:[[0,0,.5,.5,1],[0,.8,.2,.55,1.7]]},
+  edit:  {g:C,no:'08',ttl:'編集・メモを残す', imgs:[['s17',0]], zoom:[[0,0,.5,.5,1],[0,1.8,.85,.18,1.6]]},
+  memo:  {g:C,no:'09',ttl:'メモを入力して確認', imgs:[['s18',0]], zoom:[[0,0,.5,.5,1],[0,.6,.5,.62,1.2]]},
+  order: {g:C,no:'10',ttl:'更新は「順番」が大切', layout:'banner', imgs:[['s19',0]], zoom:[[0,0,.5,.5,1],[1,.6,.3,.75,1.7],[1,3.6,.8,.3,1.5],[2,0,.5,.5,1]],
+          banner:[0,.4,'順番を間違えると、内容が更新されません','<b>①更新</b> → <b>②閉じて一覧を再読み込み</b>']},
+  done:  {g:C,no:'11',ttl:'更新完了', imgs:[['s20',0]], zoom:[[0,0,.38,.5,1.6],[1,0,.85,.4,1.4]]},
+  del:   {g:C,no:'12',ttl:'連絡を削除する', imgs:[['s22',0],['s23',2]], zoom:[[0,0,.88,.15,1.6],[1,0,.35,.75,1.5],[2,0,.5,.5,1]]},
+  print: {g:C,no:'13',ttl:'印刷する', imgs:[['s24',0]], zoom:[[0,0,.5,.5,1],[0,1.2,.5,.45,1.6]]},
+  check: {g:O,no:'01',ttl:'連絡を確認する', imgs:[['s26',0]], zoom:[[0,0,.5,.5,1],[0,1.5,.55,.5,1.3]]},
+  detail:{g:O,no:'02',ttl:'詳細画面の見かた', imgs:[['s27',0]], zoom:[[0,0,.6,.35,1.35],[1,0,.35,.9,1.7]]},
+  ack:   {g:O,no:'03',ttl:'確認済みにする', imgs:[['s29',0]], zoom:[[0,0,.8,.25,1.5],[1,0,.8,.75,1.5]]},
+  search2:{g:O,no:'04',ttl:'検索・印刷', imgs:[['s31',0],['s32a',1]], zoom:[[0,0,.5,.5,1],[1,0,.2,.2,1.7]]},
+  nexus: {g:O,no:'05',ttl:'マニュアル・よくあるご質問', imgs:[['s32',0]], zoom:[[0,0,.5,.5,1],[0,1,.12,.4,2.2]]},
+  memo2: {g:O,no:'06',ttl:'共有メモ', imgs:[['s33',0],['s34',1],['s35',2]], zoom:[[0,0,.3,.65,1.4],[1,0,.5,.5,1],[2,0,.6,.35,1.25]]},
+};
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const IMG = {};
+
+function buildScreens(){
+  const host = $('#scr-host');
+  for (const [id, c] of Object.entries(SCR)){
+    const sc = document.createElement('section');
+    sc.className = 'scene scr'; sc.id = 'sc-'+id;
+    let h = `<div class="stage">
+      <div class="abs hdr"><div class="no a" data-at="0">${c.no}</div>
+        <div class="hb"><div class="side a" data-at="0" data-d=".1"><i style="background:${c.g.col}"></i>${c.g.side}</div>
+        <div class="ttl a" data-at="0" data-d=".2">${c.ttl}</div></div></div>`;
+    c.imgs.forEach(([src, at], k) => {
+      h += `<div class="win w${k}"><div class="bar"><i style="background:#FF6F61"></i><i style="background:#FFC24B"></i><i style="background:#2EC4B6"></i><span>navimate / ${c.ttl}</span></div><div class="vp"><img src="img/${src}.jpg"></div></div>`;
+    });
+    if (c.pts){ h += `<div class="plist">` + c.pts.map(p => `<div class="pt ${p[3]||''}"><span class="ck">${p[3]?ICON.alert:ICON.check}</span>${p[2]}</div>`).join('') + `</div>`; }
+    if (c.banner){ h += `<div class="banner"><span class="ic">${ICON.alert}</span><div><div class="bt">${c.banner[2]}</div><div class="bm">${c.banner[3]}</div></div></div>`; }
+    h += `</div>`;
+    sc.innerHTML = h; host.appendChild(sc);
+  }
+}
+
+// 画面ウィンドウの配置
+const AREA = {x:0, y:130, w:1190, h:690};
+function layoutScreens(){
+  for (const [id, c] of Object.entries(SCR)){
+    const sc = $('#sc-'+id);
+    let box = {...AREA};
+    if (c.layout === 'tall') box = {x:0, y:130, w:540, h:690};
+    if (c.layout === 'banner') box = {x:0, y:130, w:1190, h:520};
+    c.views = [];
+    c.imgs.forEach(([src], k) => {
+      const im = IMG[src], ar = im.naturalWidth / im.naturalHeight;
+      const vh = box.h - 44;
+      let W, H, iw, ih;
+      if (c.layout === 'tall'){ W = box.w; H = vh; iw = W; ih = W / ar; }
+      else { W = Math.min(box.w, vh * ar); H = W / ar; iw = W; ih = H; }
+      const win = $('.w'+k, sc);
+      const left = box.x + (box.w - W) / 2;
+      const top = box.y + (c.layout === 'tall' ? 0 : (vh - H) / 2);
+      Object.assign(win.style, {left:left+'px', top:top+'px', width:W+'px'});
+      const vp = $('.vp', win); vp.style.width = W+'px'; vp.style.height = H+'px';
+      const img = $('img', win); img.style.width = iw+'px'; img.style.height = ih+'px';
+      c.views.push({W, H, iw, ih, img});
+    });
+    if (c.pts){ const pl = $('.plist', sc); Object.assign(pl.style, {left:'580px', top:'150px', width:'610px'}); }
+    if (c.banner){ const b = $('.banner', sc); Object.assign(b.style, {left:'0px', top:'680px', width:'1190px', height:'130px'}); }
+  }
+}
+function focus(v, fx, fy, s){
+  const w = v.iw * s, h = v.ih * s;
+  let x = v.W/2 - fx*w, y = v.H/2 - fy*h;
+  x = w <= v.W ? (v.W - w)/2 : Math.min(0, Math.max(v.W - w, x));
+  y = h <= v.H ? (v.H - h)/2 : Math.min(0, Math.max(v.H - h, y));
+  return {x, y, scale:s};
+}
+
+// ---------- タイムライン ----------
+const tl = gsap.timeline({paused:true});
+const arm = {u:0, f:0};
+const SC = {};
+TL.scenes.forEach(s => SC[s.id] = s);
+const POSE = {op:'wave', pain:'idle', why:'present', can:'present', use1:'present', use2:'present', ch1:'idle', ch2:'idle', end:'present'};
+
+function build(){
+  TL.scenes.forEach((s, i) => {
+    const el = $('#sc-'+s.id); if (!el) return;
+    const st = s.start, en = s.start + s.dur;
+    const at = (k, d=0) => st + (s.subs[Math.min(k, s.subs.length-1)].t) + d - 0.15;
+    tl.set(el, {visibility:'visible'}, st);
+    tl.fromTo(el, {opacity:0}, {opacity:1, duration:.4, ease:'power1.out'}, st);
+    if (i < TL.scenes.length - 1){ tl.to(el, {opacity:0, duration:.4, ease:'power1.in'}, en - .05); tl.set(el, {visibility:'hidden'}, en + .4); }
+
+    // 汎用の出現アニメーション
+    $$('.a', el).forEach(a => {
+      const k = +a.dataset.at || 0, d = +(a.dataset.d||0), fx = a.dataset.fx || 'up';
+      const t0 = Math.max(st + .05, at(k, d));
+      const from = {opacity:0}, to = {opacity:1, duration:.7, ease:'power3.out'};
+      if (fx === 'up'){ from.y = 40; to.y = 0; }
+      if (fx === 'pop'){ from.scale = .7; from.y = 30; to.scale = 1; to.y = 0; to.ease = 'back.out(1.7)'; to.duration = .65; }
+      if (fx === 'left'){ from.x = -60; to.x = 0; }
+      if (fx === 'right'){ from.x = 60; to.x = 0; }
+      if (fx === 'mask'){ from.clipPath = 'inset(0 100% 0 0)'; to.clipPath = 'inset(0 0% 0 0)'; from.x = -20; to.x = 0; to.duration = 1.1; to.ease = 'power4.out'; }
+      tl.fromTo(a, from, to, t0);
+      if (a.dataset.out){ tl.to(a, {opacity:0, y:-30, duration:.5, ease:'power2.in'}, at(+a.dataset.out, -0.35)); }
+    });
+
+    // チャプター
+    if (el.classList.contains('chap')){
+      tl.fromTo($('.panel', el), {xPercent:100}, {xPercent:0, duration:.7, ease:'power4.out'}, st);
+    }
+    // 画面紹介
+    const c = SCR[s.id];
+    if (c){
+      c.imgs.forEach(([src, k], j) => {
+        const w = $('.w'+j, el), t0 = j === 0 ? st + .1 : at(k, -.2);
+        tl.fromTo(w, {opacity:0, y:50, scale:.96}, {opacity:1, y:0, scale:1, duration:.8, ease:'power3.out'}, t0);
+        if (j < c.imgs.length - 1){ const t1 = at(c.imgs[j+1][1], -.25); tl.to(w, {opacity:0, y:-30, duration:.45, ease:'power2.in'}, t1); }
+      });
+      const viewOf = k => { let v = 0; c.imgs.forEach(([, a], j) => { if (k >= a) v = j; }); return v; };
+      let first = {};
+      c.zoom.forEach(([k, d, fx, fy, sc]) => {
+        const j = viewOf(k), v = c.views[j], f = focus(v, fx, fy, sc);
+        if (!first[j]){ tl.set(v.img, f, st); first[j] = 1; }
+        else tl.to(v.img, {...f, duration:1.4, ease:'power2.inOut'}, at(k, d));
+      });
+      if (c.pts) $$('.pt', el).forEach((p, j) => {
+        tl.fromTo(p, {opacity:0, x:40}, {opacity:1, x:0, duration:.6, ease:'power3.out'}, at(c.pts[j][0], c.pts[j][1]));
+      });
+      if (c.banner) tl.fromTo($('.banner', el), {opacity:0, y:40, scale:.95}, {opacity:1, y:0, scale:1, duration:.7, ease:'back.out(1.6)'}, at(c.banner[0], c.banner[1]));
+    }
+
+    // 腕のポーズ
+    const pose = POSE[s.id] || 'present';
+    const P = {idle:{u:0, f:0}, present:{u:-20, f:-78}, wave:{u:-34, f:-118}};
+    tl.to(arm, {...P[pose], duration:.7, ease:'power2.inOut'}, st + .15);
+  });
+  // 手を振る
+  const op = SC.op;
+  for (let k = 0; k < 4; k++) tl.to(arm, {f: k % 2 ? -118 : -140, duration:.28, ease:'sine.inOut'}, op.start + 1.0 + k*.28);
+  tl.to(arm, {f:-118, duration:.3}, op.start + 2.15);
+  // 背景のゆらぎ
+  const T = TL.total;
+  tl.to('#b1', {x:-160, y:90, duration:T, ease:'sine.inOut'}, 0);
+  tl.to('#b2', {x:140, y:-60, duration:T, ease:'sine.inOut'}, 0);
+  tl.to('#b3', {x:-220, duration:T, ease:'sine.inOut'}, 0);
+  tl.set({}, {}, T);
+}
+
+// ---------- キャラクターと字幕（毎フレーム） ----------
+const subs = [];
+TL.scenes.forEach(s => s.subs.forEach(u => subs.push({t0:s.start+u.t, t1:s.start+u.t+u.d, s:u.s})));
+const subEl = $('#sub span');
+let curSub = -1;
+function frame(t){
+  // 字幕
+  let k = -1;
+  for (let i = 0; i < subs.length; i++){ if (t >= subs[i].t0 - .12 && t < subs[i].t1 + .28) { k = i; break; } }
+  if (k !== curSub){ curSub = k; subEl.innerHTML = k >= 0 ? subs[k].s.replace(/「(.+?)」/g,'「<em>$1</em>」') : ''; }
+  let op = 0;
+  if (k >= 0){ const a = subs[k]; op = Math.min(1, (t - a.t0 + .12)/.15, (a.t1 + .28 - t)/.15); }
+  subEl.style.opacity = Math.max(0, op);
+  subEl.style.visibility = k >= 0 ? 'visible' : 'hidden';
+
+  // 口パク
+  const fi = Math.min(TL.mouth.length-1, Math.max(0, Math.round(t*TL.fps)));
+  const m = (TL.mouth[fi] + (TL.mouth[fi-1]||0)*.5 + (TL.mouth[fi+1]||0)*.5) / 2;
+  const open = m > .06;
+  $('#mSmile').style.display = open ? 'none' : '';
+  $('#mOpen').style.display = open ? '' : 'none';
+  if (open) $('#mOpen').setAttribute('transform', `scale(${.85 + m*.25} ${.35 + m*.85})`);
+
+  // まばたき
+  const per = 3.6, ph = (t + .9*Math.sin(t*.53)) % per;
+  const b = ph < .16 ? Math.abs(Math.cos(ph/.16*Math.PI)) : 1;
+  $$('.eyeIn').forEach(e => e.setAttribute('transform', `scale(1 ${Math.max(.08,b)})`));
+
+  // 体の揺れ・うなずき
+  let nod = 0;
+  for (const u of subs){ const d = t - u.t0; if (d > 0 && d < .7) nod += Math.sin(d/.7*Math.PI) * 2.2; }
+  const breath = Math.sin(t*2*Math.PI/4.2);
+  $('#head').setAttribute('transform', `rotate(${Math.sin(t*.8)*1.6 + nod} 300 380)`);
+  $('#hairBackG').setAttribute('transform', `rotate(${Math.sin(t*.8)*1.6 + nod} 300 380)`);
+  $('#charaWrap').style.transform = `translateY(${breath*3}px) scale(${1 + breath*.003})`;
+  $('#armRU').setAttribute('transform', `rotate(${arm.u + Math.sin(t*1.3)*1.2})`);
+  $('#armRF').setAttribute('transform', `translate(0 195) rotate(${arm.f + Math.sin(t*1.7)*2})`);
+}
+
+window.seek = t => { tl.seek(t, false); frame(t); };
+window.ready = (async () => {
+  $$('[data-icon]').forEach(i => i.outerHTML = ICON[i.dataset.icon]);
+  buildScreens();
+  await Promise.all($$('img').map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+  $$('img').forEach(im => IMG[im.getAttribute('src').slice(4,-4)] = im);
+  await document.fonts.ready;
+  layoutScreens(); build(); seek(0);
+  return true;
+})();
+</script>
+</body>
+</html>
