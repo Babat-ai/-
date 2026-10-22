@@ -11,6 +11,8 @@ import subprocess
 import sys
 
 # ===== 設定 =====
+TRIM_START = 0.5     # 元の動画の頭を何秒カットするか（録画開始時のYouTubeの表示を消す）
+OUT_W, OUT_H = 1920, 1080   # 完成動画のサイズ
 IMAGE = "output/JC卒業なぜかエモい説.png"      # つなぐ説の画像
 BGM_SOURCE = "suiyobi/input/setsu_bgm.mov"     # BGMを切り取る元の動画
 BGM_START = 0.0      # BGMを切り取りはじめる位置（秒）
@@ -41,24 +43,35 @@ def probe(path):
     return w, h, fps, has_audio, duration
 
 
+def detect_crop(video):
+    """画面のまわりの黒いふちを自動で見つけて、切り取る範囲（crop=幅:高さ:x:y）を返す"""
+    log = subprocess.run(
+        ["ffmpeg", "-ss", "2", "-t", "5", "-i", video, "-vf", "cropdetect=24:2:0",
+         "-f", "null", "-"], capture_output=True, text=True).stderr
+    crops = [w for w in log.split() if w.startswith("crop=")]
+    return max(set(crops), key=crops.count) if crops else None
+
+
 def main(video):
     w, h, fps, has_audio, duration = probe(video)
     length = BGM_END - BGM_START
-    print(f"元の動画: {w}x{h} {fps}fps 音{'あり' if has_audio else 'なし'}")
+    crop = detect_crop(video)
+    fps = min(fps, 30)
+    print(f"元の動画: {w}x{h} 音{'あり' if has_audio else 'なし'} / 黒ふち切り取り: {crop}")
 
-    # 画像を動画と同じ大きさにそろえる（はみ出さないよう縮めて、すきまは黒）
-    fit = (f"scale={w}:{h}:force_original_aspect_ratio=decrease,"
-           f"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:black,setsar=1,fps={fps},format=yuv420p")
+    # 動画も画像も同じ大きさにそろえる（はみ出さないよう縮めて、すきまは黒）
+    fit = (f"scale={OUT_W}:{OUT_H}:force_original_aspect_ratio=decrease,"
+           f"pad={OUT_W}:{OUT_H}:(ow-iw)/2:(oh-ih)/2:black,setsar=1,fps={fps},format=yuv420p")
 
-    inputs = ["-i", video,
+    inputs = ["-ss", str(TRIM_START), "-i", video,
               "-loop", "1", "-t", str(length), "-i", os.path.join(BASE, IMAGE),
               "-ss", str(BGM_START), "-t", str(length), "-i", os.path.join(BASE, BGM_SOURCE)]
     if not has_audio:                     # 音のない動画には無音をつけておく
-        inputs += ["-f", "lavfi", "-t", str(duration), "-i", "anullsrc=r=44100:cl=stereo"]
+        inputs += ["-f", "lavfi", "-t", str(duration - TRIM_START), "-i", "anullsrc=r=44100:cl=stereo"]
     main_audio = "[0:a]" if has_audio else "[3:a]"
 
     graph = (
-        f"[0:v]{fit}[v0];"
+        f"[0:v]{crop + ',' if crop else ''}{fit}[v0];"
         f"[1:v]{fit}[v1];"
         f"{main_audio}aresample=44100,aformat=channel_layouts=stereo[a0];"
         f"[2:a]aresample=44100,aformat=channel_layouts=stereo,"
