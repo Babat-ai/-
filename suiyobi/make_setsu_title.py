@@ -18,8 +18,19 @@ W, H = 1920, 1080
 S = 2                # 2倍の大きさで描いてから縮める（線のギザギザを消すため）
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-FONT = os.path.join(BASE, "fonts", "DelaGothicOne-Regular.ttf")
+# 背景画像。None にすると、背景・唇・もようをプログラムで描く
+BACKGROUND = os.path.join(BASE, "input", "bg_kensho.webp")
 OUTPUT = os.path.join(BASE, "..", "output", "JC卒業なぜかエモい説.png")
+
+# フォント：suiyobi/fonts/ に「ロマン雪」(Roman Yuki) のファイルを置けばそれを使う。
+# なければ、形の近い無料フォント Dela Gothic One を横に縮めて代わりに使う
+_user_fonts = [f for f in sorted(os.listdir(os.path.join(BASE, "fonts")))
+               if ("ロマン" in f or "roman" in f.lower())
+               and f.lower().endswith((".ttf", ".otf", ".ttc"))]
+if _user_fonts:
+    FONT, SQUEEZE = os.path.join(BASE, "fonts", _user_fonts[0]), 1.0
+else:
+    FONT, SQUEEZE = os.path.join(BASE, "fonts", "DelaGothicOne-Regular.ttf"), 0.82
 
 # 色
 CYAN = (128, 240, 240)
@@ -148,7 +159,7 @@ def draw_bottom_mouth(d):
 # ---------------------------------------------------------------
 # 文字
 # ---------------------------------------------------------------
-def text_image(text, size, fill, stroke=0, squeeze=0.82, spacing=0):
+def text_image(text, size, fill, stroke=0, squeeze=None, spacing=0):
     """文字を画像にして、横幅を少し縮める（番組のフォントは少し縦長なので）"""
     font = ImageFont.truetype(FONT, size * S)
     chars = []
@@ -165,6 +176,8 @@ def text_image(text, size, fill, stroke=0, squeeze=0.82, spacing=0):
                stroke_width=stroke * S, stroke_fill=BLACK)
         x += w + spacing * S
     img = img.crop(img.getbbox())
+    if squeeze is None:
+        squeeze = SQUEEZE
     return img.resize((int(img.width * squeeze), img.height), Image.LANCZOS)
 
 
@@ -176,11 +189,12 @@ def setsu_box(size):
     return box
 
 
-def draw_texts(canvas):
+def draw_texts(canvas, with_label):
     size = 150
-    # 黄色い「検証」（上の唇の中）
-    label = text_image(LABEL, 105, YELLOW, stroke=5, squeeze=0.95, spacing=40)
-    canvas.alpha_composite(label, (W * S // 2 - label.width // 2, 70 * S))
+    # 黄色い「検証」（上の唇の中）。背景画像にもう入っているときは書かない
+    if with_label:
+        label = text_image(LABEL, 105, YELLOW, stroke=5, squeeze=0.95, spacing=40)
+        canvas.alpha_composite(label, (W * S // 2 - label.width // 2, 70 * S))
 
     # メインの2行
     pieces = []
@@ -206,14 +220,18 @@ def draw_texts(canvas):
 
 
 if __name__ == "__main__":
-    canvas = Image.new("RGBA", (W * S, H * S), CYAN + (255,))
-    d = ImageDraw.Draw(canvas)
-    draw_bg_pattern(d)
-    draw_border(canvas, top=True)
-    draw_border(canvas, top=False)
-    draw_top_mouth(d)
-    draw_bottom_mouth(d)
-    draw_texts(canvas)
+    if BACKGROUND:
+        canvas = Image.open(BACKGROUND).convert("RGBA").resize((W * S, H * S), Image.LANCZOS)
+    else:
+        canvas = Image.new("RGBA", (W * S, H * S), CYAN + (255,))
+        d = ImageDraw.Draw(canvas)
+        draw_bg_pattern(d)
+        draw_border(canvas, top=True)
+        draw_border(canvas, top=False)
+        draw_top_mouth(d)
+        draw_bottom_mouth(d)
+    draw_texts(canvas, with_label=not BACKGROUND)
+    print("フォント:", os.path.basename(FONT))
     out = canvas.resize((W, H), Image.LANCZOS).convert("RGB")
     out.save(os.path.abspath(OUTPUT))
     print("完成:", os.path.abspath(OUTPUT))
