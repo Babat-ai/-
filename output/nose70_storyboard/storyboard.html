@@ -88,6 +88,7 @@ tr.key td { background: color-mix(in srgb, var(--gold) 10%, var(--paper)); }
 
 /* パート */
 section.part { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.keep { display: flex; flex-direction: column; gap: 16px; break-inside: avoid; }
 .part-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
 .part-head .tc { font-family: var(--mono); color: var(--muted); font-size: 13px; }
 .part-head p { flex-basis: 100%; margin: 0; color: var(--muted); max-width: 65ch; }
@@ -182,7 +183,8 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
           <tr><td class="k">CUT 16</td><td>横顔は不要</td><td>削除。会場後方からの全景と、記念映像の元データの抜粋で構成します（C17）。</td></tr>
           <tr><td class="k">CUT 17</td><td>もっと長く</td><td>2カット・計36秒に延長。読み原稿から3つの言葉をテロップで残します（C18・C19）。</td></tr>
           <tr><td class="k">ED</td><td>「閉会の一礼」はどこ？／夕方にはならない／送り出しを撮りたい</td><td>「閉会の一礼」は台本を確認する前の仮の想定でした。台本では閉会はMCの陰アナウンスのため、閉会は「客電が上がる会場全景＋町歌」に変更しました（C21）。送り出しの表情（C22）を加え、朝夕の対は「入場する人（C05）」と「帰っていく人（C23）」を同じアングルで撮る対に変えました。</td></tr>
-          <tr><td class="k">ドローン</td><td>俯瞰の撮影は可能か</td><td>来場者の真上を飛ばすのは法令上ハードルが高いため、人の流れは高所カメラで撮ります。ドローンは人がいない時間帯の外観空撮に限ります（下の撮影メモを参照）。</td></tr>
+          <tr><td class="k">ドローン</td><td>俯瞰の撮影は可能か</td><td>来場者の真上を飛ばすのは法令上のハードルが高いため、使いません。人の流れは、ロビーに低い三脚を置いた足元ショットで表現します（C05・C23）。</td></tr>
+          <tr><td class="k">天候・高所</td><td>高所カメラは難しい／天気に依存する構図は避けたい</td><td>屋外の外観カットをやめ、オープニングは開場前の無人のホールに変更しました（C01）。全カットを屋内・三脚と手持ちだけで撮れる構成です。</td></tr>
         </tbody>
       </table>
     </div>
@@ -195,11 +197,11 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
     <p>進行シナリオの時刻をもとにしています。太字の行は、移動が必要な時間帯や見落としやすい撮影です。</p>
     <div class="scroll">
       <table>
-        <thead><tr><th>時刻</th><th>進行</th><th>A カメ（固定・高所）</th><th>B カメ（手持ち）</th><th>カット</th></tr></thead>
+        <thead><tr><th>時刻</th><th>進行</th><th>A カメ（三脚）</th><th>B カメ（手持ち）</th><th>カット</th></tr></thead>
         <tbody>
-          <tr class="key"><td class="time">8:30〜9:30</td><td>集合・受付・表彰者リハーサル</td><td>外観（人がいない時間）。ドローンを使う場合はこの時間に</td><td>小ホールの展示（ポスター・フォトコン作品・メッセージブース）を無人の状態で</td><td>C01・C03・C04</td></tr>
-          <tr class="key"><td class="time">9:30</td><td>開場</td><td>高所から入場の人の流れ（俯瞰）</td><td>開場直後の客席</td><td>C05・C06</td></tr>
-          <tr><td class="time">9:55〜10:00</td><td>1ベル・2ベル</td><td>客席後方へ移動・ステージ全景で回し始め</td><td>客電が落ちる瞬間</td><td>C07</td></tr>
+          <tr class="key"><td class="time">8:30〜9:30</td><td>集合・受付・表彰者リハーサル</td><td>客席後方に設置。ロビーの足元ショットの位置を決めて床に印</td><td>無人のホールと、小ホールの展示（ポスター・フォトコン作品・メッセージブース）を無人の状態で</td><td>C01・C03・C04</td></tr>
+          <tr class="key"><td class="time">9:30</td><td>開場</td><td>客席後方からタイムラプス（後ろ姿のみ）</td><td>ロビーで入場の足元（低い三脚）</td><td>C05・C06</td></tr>
+          <tr><td class="time">9:55〜10:00</td><td>1ベル・2ベル</td><td>ステージ全景で回し始め、客電が落ちる瞬間</td><td>ホールへ移動（低い三脚は回収）</td><td>C07</td></tr>
           <tr><td class="time">10:00</td><td>能勢三番叟</td><td>全景</td><td>人形の寄り・遣い手の手元</td><td>C08</td></tr>
           <tr><td class="time">10:07〜10:30</td><td>開会・国歌・式辞・議長・来賓4名</td><td>全景</td><td>登壇者のバスト</td><td>C09〜C12</td></tr>
           <tr><td class="time">10:40〜11:00</td><td>自治功労者表彰・町長表彰</td><td>全景</td><td>手渡しを正面から</td><td>C13・C14</td></tr>
@@ -208,7 +210,7 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
           <tr><td class="time">11:35〜11:45</td><td>記念映像上映</td><td>後方から全景</td><td>—（元データを借用）</td><td>C17</td></tr>
           <tr><td class="time">11:45〜11:52</td><td>未来へのメッセージ</td><td>全景</td><td>2名のバスト</td><td>C18・C19</td></tr>
           <tr><td class="time">11:52〜11:55</td><td>謝辞・閉会</td><td>全景（客電が上がるまで）</td><td>副町長のバスト</td><td>C20・C21</td></tr>
-          <tr class="key"><td class="time">11:55〜12:05</td><td>ロビーで送り出し</td><td>高所から帰る人の流れ（C05と同じ位置）</td><td>主催者の表情</td><td>C22・C23</td></tr>
+          <tr class="key"><td class="time">11:55〜12:05</td><td>ロビーで送り出し</td><td>客電が上がったらロビーへ移動し、C05と同じ印の位置で帰る人の足元</td><td>主催者の表情</td><td>C22・C23</td></tr>
           <tr class="key"><td class="time">12:10頃</td><td>記念写真（シアターホール）</td><td>集合写真の全景（動画）</td><td>スチル撮影（8組）</td><td>C15</td></tr>
         </tbody>
       </table>
@@ -222,17 +224,18 @@ footer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--line)
         <h3>一般来場者の肖像について</h3>
         <ul>
           <li>一般来場者の顔が判別できる素材は使わない前提で組んでいます。</li>
-          <li>客席は後方から（後ろ姿）、人の流れは高所から引きで撮り、顔が判別できない大きさにする。</li>
+          <li>客席は後方から（後ろ姿）、人の流れは膝から下の足元だけを撮る。</li>
           <li>寄りで撮るのは、登壇者・表彰者・出演者・主催者だけ。</li>
           <li>それでも映り込んだ顔は、編集でぼかすか、そのカットを使わない。</li>
         </ul>
       </div>
       <div class="note">
-        <h3>ドローンについて</h3>
+        <h3>機材と天候について</h3>
         <ul>
-          <li>来場者の真上を飛ばすこと（第三者上空・催し場所上空）は、航空法の許可・承認のハードルが高く、申請も通常は飛行の10開庁日以上前に必要です。当日までに新規で取るのは現実的ではありません。</li>
-          <li>撮影会社が包括許可を持っていれば、人がいない早朝の外観空撮（C01）は検討できます。人や物から30m離れることなど、条件を撮影会社に確認してください。</li>
-          <li>人の流れの俯瞰（C05・C23）は、建物の上の階・屋上・高所三脚から撮ります。顔が判別できない引きの画になるので、肖像の面でも安全です。</li>
+          <li>使うのは三脚・低い三脚・手持ちだけです。ドローンや高所カメラは使いません。</li>
+          <li>全カットを屋内（ホール・小ホール・ロビー）で撮るので、当日の天気に左右されません。</li>
+          <li>足元ショット（C05・C23）は、開場前に三脚の位置を床にテープで印しておき、退場時も同じ位置・同じ画角で撮る。通行の邪魔にならない壁際に置く。</li>
+          <li>屋外の画は、エンディングのフォトコン作品（静止画）だけです。</li>
         </ul>
       </div>
       <div class="note">
@@ -292,12 +295,9 @@ const podiumBody = () => `<rect class="s-fill2" x="0" y="0" width="160" height="
     ${person(80, 66, 2.6)}<path class="s-fill" d="M58 60 H102 L98 90 H62Z"/><path class="s-line" d="M80 46 L74 34"/><circle class="s-dark" cx="74" cy="33" r="1.5"/>`;
 
 const SK = {
-  building: () => `<rect class="s-sky" width="160" height="90"/><circle class="s-sun" cx="128" cy="20" r="7"/>
-    <path class="s-fill2" d="M0 52 Q30 34 60 46 Q95 30 130 44 Q148 38 160 42 V90 H0Z" opacity=".6"/>
-    <rect class="s-fill" x="42" y="34" width="76" height="38"/><path class="s-line" d="M38 34 H122 M42 46 H118"/>
-    <rect class="s-fill2" x="70" y="56" width="20" height="16"/><text class="s-text" x="80" y="42" text-anchor="middle">淨るりシアター</text>
-    <path class="s-line" d="M0 72 H160"/><circle class="s-fill2" cx="22" cy="60" r="8"/><path class="s-line" d="M22 68 V72"/><circle class="s-fill2" cx="140" cy="62" r="6"/><path class="s-line" d="M140 68 V72"/>
-    <path class="s-arrow" d="M80 4 V24 M76 19 L80 24 L84 19"/>${note(86, 10, 'ティルトダウン')}`,
+  emptyHall: () => `<path class="s-light" d="M40 0 H60 L80 60 H20Z"/><path class="s-light" d="M100 0 H120 L140 60 H80Z"/>${SK.stageWide()}
+    ${[66, 74, 82].map((y, r) => [...Array(9 - r)].map((_, i) => `<rect class="s-fill2" x="${8 + r * 6 + i * (144 - r * 12) / (8 - r)}" y="${y}" width="${10 + r * 2}" height="${6 + r}" rx="2"/>`).join('')).join('')}
+    <path class="s-arrow" d="M80 88 V66 M76 71 L80 66 L84 71"/>${note(30, 38, '無人の客席から前進')}`,
   photo: () => `<rect class="s-sky" width="160" height="90"/><circle class="s-sun" cx="50" cy="30" r="9"/>
     <path class="s-fill2" d="M0 44 Q40 30 80 40 Q120 28 160 38 V90 H0Z"/>
     <path class="s-thin" d="M0 58 Q60 50 160 60 M0 66 Q70 58 160 70 M0 75 Q80 66 160 80 M0 84 Q90 76 160 89"/>
@@ -315,14 +315,16 @@ const SK = {
     <rect class="s-fill" x="92" y="8" width="60" height="48"/><text class="s-text" x="122" y="16" text-anchor="middle" font-size="4">未来へ残したいメッセージ</text>
     ${[0, 1, 2, 3, 4, 5].map(i => `<rect class="${i % 2 ? 's-fill2' : 's-sun'}" x="${97 + (i % 3) * 17}" y="${22 + Math.floor(i / 3) * 15}" width="13" height="11" opacity=".8"/>`).join('')}
     <path class="s-line" d="M0 64 H160"/>${note(6, 84, 'フォトコン入選作品')}${note(100, 84, 'メッセージブース')}`,
-  aerial: (dir) => `<rect class="s-fill2" width="160" height="90" opacity=".35"/>
-    <rect class="s-fill" x="98" y="4" width="58" height="46"/><text class="s-text" x="127" y="28" text-anchor="middle">淨るりシアター</text><rect class="s-dark" x="100" y="46" width="14" height="4"/>
-    <path class="s-fill" d="M0 64 Q60 62 102 50 L114 52 Q70 76 0 84Z"/>
-    ${[...Array(22)].map((_, i) => { const t = i / 22; const x = 6 + t * 98; const y = 72 - t * 20 + (i % 3 - 1) * 3; return `<circle class="s-fill2" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.8"/>`; }).join('')}
+  feet: (dir) => {
+    const leg = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect class="s-fill2" x="-4.5" y="-26" width="4" height="26"/><rect class="s-fill2" x="1" y="-26" width="4" height="24" transform="rotate(10 3 -26)"/><ellipse class="s-dark" cx="-2.5" cy="0" rx="4" ry="1.6"/><ellipse class="s-dark" cx="5" cy="-1.5" rx="4" ry="1.6"/></g>`;
+    return `<rect class="s-fill2" width="160" height="90" opacity=".35"/><rect class="s-fill" x="52" y="6" width="56" height="40"/><path class="s-line" d="M80 6 V46 M0 46 H160"/>
+    <text class="s-text" x="80" y="28" text-anchor="middle">${dir === 'out' ? 'ロビー出口' : 'ホール入口'}</text>
+    ${leg(28, 88, 1.5)}${leg(60, 78, 1.1)}${leg(96, 70, .85)}${leg(126, 84, 1.35)}${leg(78, 60, .6)}
     ${dir === 'out'
-      ? `<path class="s-arrow" d="M96 42 Q60 58 22 62 M28 57 L22 62 L28 66"/>`
-      : `<path class="s-arrow" d="M22 60 Q60 56 96 42 M89 41 L96 42 L92 48"/>`}
-    ${note(4, 10, '高所から俯瞰・顔は判別できない引き')}`,
+      ? `<path class="s-arrow" d="M70 56 Q110 62 150 76 M143 77 L150 76 L146 70"/>`
+      : `<path class="s-arrow" d="M24 64 Q56 56 76 48 M69 47 L76 48 L73 54"/>`}
+    ${note(4, 52, '低い三脚で足元だけ（顔は映らない）')}`;
+  },
   audienceBack: () => `<rect class="s-dark" x="30" y="6" width="100" height="30" opacity=".8"/><rect class="s-fill" x="40" y="14" width="80" height="22"/>
     ${crowd(48, 11, 3.2, 10, 150)}${crowd(60, 9, 4, 6, 154)}${crowd(74, 7, 5.2, 2, 158)}${note(6, 12, '後方から・タイムラプス')}`,
   stageWide: (lt) => `${stageFrame()}<rect class="s-fill2" x="10" y="8" width="18" height="52"/><rect class="s-fill2" x="132" y="8" width="18" height="52"/>
@@ -375,14 +377,14 @@ const SK = {
 // ---- 絵コンテのデータ（秒数は自動で合計・タイムコード計算） ----
 // face: 一般来場者が映るカット / at: 撮影する時刻 / isNew: 第2版で追加・大きく変更
 const PARTS = [
-  { id: 'op', cls: 'p1', name: 'オープニング', lead: '人がいない朝の会場から入り、タイトルを出す。', cuts: [
-    { sec: 12, sk: 'building', at: '8:30〜9:30', t: '会場外観', v: '朝の淨るりシアター。空と山並みを入れて、町の空気を見せる。', cam: '空から建物へゆっくりティルトダウン。撮影会社が許可を持っていれば、人がいない時間にドローンで空撮', tel: 'なし', au: ['bgm', 'BGMフェードイン（町歌 囃子Ver.も候補）'] },
+  { id: 'op', cls: 'p1', name: 'オープニング', lead: '開場前の無人のホールから入り、タイトルを出す。天候に左右されないよう、全カットを屋内で構成。', cuts: [
+    { sec: 12, sk: 'emptyHall', at: '8:30〜9:00', t: '開場前のホール', v: '誰もいない客席と、式典看板のあるステージ。これから始まる式典への期待感を出す。', cam: '客席の通路からステージへゆっくり前進（手持ちジンバル等）。照明チェック中なら、ステージに光が入る瞬間を狙う', tel: 'なし', au: ['bgm', 'BGMフェードイン（町歌 囃子Ver.も候補）'], isNew: true },
     { sec: 8, sk: 'title', t: 'タイトル', v: '記念ロゴと式典名・日付・会場。紫と金のライン。', cam: '編集で作成', tel: '町制施行70周年記念式典／令和8年10月25日　淨るりシアター', au: ['bgm', 'BGM'] },
   ]},
-  { id: 'entry', cls: 'p2', name: '開場・入場', lead: '会場の準備と、人が集まってくる流れ。一般来場者は顔が判別できない引きと後ろ姿で撮る。', cuts: [
+  { id: 'entry', cls: 'p2', name: '開場・入場', lead: '会場の準備と、人が集まってくる流れ。一般来場者は足元と後ろ姿で撮る。', cuts: [
     { sec: 8, sk: 'posters', at: '8:30〜9:30', t: '小ホール ローカルヒーローのポスター', v: '小ホールに展示された、ローカルヒーローの活動報告ポスター。', cam: '開場前の無人の状態で、ポスターを1枚ずつ横にパン', tel: 'なし（ポスターの文字を読ませる）', au: ['bgm', 'BGM'], isNew: true },
     { sec: 6, sk: 'exhibit', at: '8:30〜9:30', t: '小ホールの展示', v: 'フォトコンテスト入選作品と「未来へ残したいメッセージ」ブース。メッセージカードの寄り。', cam: '無人の状態で寄り中心', tel: 'なし', au: ['bgm', 'BGM'], isNew: true },
-    { sec: 10, sk: 'aerial', arg: 'in', at: '9:30', t: '入場する人の流れ', v: '開場と同時に会場へ向かう人の流れを俯瞰で。帰っていく人（C23）と対にする。', cam: '高所に固定（建物の上の階・屋上・高所三脚）。C23と同じ位置・同じ画角', tel: 'なし', au: ['bgm', 'BGM＋ざわめきを薄く'], face: true, isNew: true },
+    { sec: 10, sk: 'feet', arg: 'in', at: '9:30', t: '入場する人の流れ', v: 'ロビーからホール入口へ向かう人の足元。画面の奥へ吸い込まれていく流れを見せ、帰っていく人（C23）と対にする。', cam: 'ロビーの壁際に低い三脚を置いて固定。膝から下だけを撮る。C23と同じ位置・同じ画角（床にテープで印を付けておく）', tel: 'なし', au: ['bgm', 'BGM＋ざわめきを薄く'], face: true, isNew: true },
     { sec: 5, sk: 'audienceBack', at: '9:30〜10:00', t: '客席が埋まっていく', v: 'ステージ方向を後ろから。席が埋まっていく様子。', cam: 'A カメ固定でタイムラプス（後ろ姿のみ）', tel: 'なし', au: ['bgm', 'BGM'], face: true },
     { sec: 5, sk: 'stageWide', at: '10:00', t: '開演直前のステージ', v: '式典看板のあるステージ全景。2ベルで客電が落ちる瞬間で切る。', cam: 'ワイド固定', tel: 'なし', au: ['bgm', 'BGMを絞って会場音へ'] },
   ]},
@@ -403,8 +405,8 @@ const PARTS = [
     { sec: 5, sk: 'houseLights', at: '11:55', t: '閉会', v: '閉式のアナウンスとともに客電が上がる会場全景（後方から）。', cam: 'A カメのワイド', tel: 'なし', au: ['live', '閉式アナウンス → 町歌（歌入りVer.）'], face: true, isNew: true },
   ]},
   { id: 'ed', cls: 'p4', name: 'エンディング', lead: 'ロビーの送り出しから、帰っていく人の流れへ。入場（C05）と同じアングルで対にし、町の風景とロゴで締める。', cuts: [
-    { sec: 10, sk: 'sendoff', at: '11:55〜12:05', t: 'ロビーでの送り出し', v: '来場者を見送る主催者の表情。来場者は後ろ姿だけにする。', cam: 'ロビーの外側から主催者を正面に。来場者は手前の後ろ姿', tel: 'なし', au: ['bgm', '町歌（歌入りVer.）'], face: true, isNew: true },
-    { sec: 8, sk: 'aerial', arg: 'out', at: '11:55〜12:05', t: '帰っていく人の流れ', v: '会場から帰っていく人の流れ。C05（入場）と同じ位置・同じ画角で撮る。', cam: '高所に固定。C05と同じ画角', tel: 'なし', au: ['bgm', 'BGM'], face: true, isNew: true },
+    { sec: 10, sk: 'sendoff', at: '11:55〜12:05', t: 'ロビーでの送り出し', v: '来場者を見送る主催者の表情。来場者は後ろ姿だけにする。', cam: 'ロビーのホール側（来場者の背中側）から、出口付近に並ぶ主催者を正面に。来場者は手前の後ろ姿', tel: 'なし', au: ['bgm', '町歌（歌入りVer.）'], face: true, isNew: true },
+    { sec: 8, sk: 'feet', arg: 'out', at: '11:55〜12:05', t: '帰っていく人の流れ', v: '式典を終えてロビーを出口へ向かう人の足元。C05（入場）と同じ画角で、今度は人が画面の手前へ出ていく。', cam: '低い三脚で固定。C05と同じ位置・同じ画角', tel: 'なし', au: ['bgm', 'BGM'], face: true, isNew: true },
     { sec: 7, sk: 'photo', t: 'フォトコンテスト最優秀作品', v: '記念誌の裏表紙を飾る「長谷の棚田」の朝日。式典の余韻から町の風景へ戻す。', cam: '静止画をゆっくりズームイン', tel: '「大好きな能勢町。」／写真：長田 健太（長谷の棚田）70周年記念フォトコンテスト最優秀賞', au: ['bgm', 'BGM'] },
     { sec: 6, sk: 'endcard', t: 'エンドカード', v: '記念ロゴとキャッチコピー。', cam: '編集で作成', tel: '探してみよう、あなたのナイッす。／能勢町 町制施行70周年', au: ['bgm', 'BGMフェードアウト'] },
   ]},
@@ -416,7 +418,7 @@ const total = PARTS.flatMap(p => p.cuts).reduce((a, c) => a + c.sec, 0);
 for (const p of PARTS) {
   const start = t, len = p.cuts.reduce((a, c) => a + c.sec, 0);
   bar += `<a class="${p.cls}" href="#${p.id}" style="flex:${len}"><strong>${p.name}</strong><span>${len}秒</span></a>`;
-  let cards = '';
+  let cards = '', first = true;
   for (const c of p.cuts) {
     no++;
     const n = String(no).padStart(2, '0');
@@ -430,8 +432,10 @@ for (const p of PARTS) {
         <dt>音</dt><dd><span class="chip ${c.au[0]}">${c.au[0] === 'live' ? '現場音' : 'BGM'}</span>${c.au[1]}</dd></dl></div>
     </article>`;
     t += c.sec;
+    // 見出しと最初のカットをまとめ、印刷時に見出しだけがページ末に残らないようにする
+    if (first) { cards = `<div class="keep"><div class="part-head"><h2>${p.name}</h2><span class="tc">${tc(start)} – ${tc(start + len)}（${len}秒）</span><p>${p.lead}</p></div>${cards}</div>`; first = false; }
   }
-  html += `<section class="part" id="${p.id}"><div class="part-head"><h2>${p.name}</h2><span class="tc">${tc(start)} – ${tc(t)}（${len}秒）</span><p>${p.lead}</p></div>${cards}</section>`;
+  html += `<section class="part" id="${p.id}">${cards}</section>`;
 }
 document.getElementById('parts').innerHTML = html;
 document.getElementById('bar').innerHTML = bar;
