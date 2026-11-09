@@ -2,19 +2,22 @@
 縦型Vlogを自動で作るスクリプト
 
 使い方:
-  1. vlog/input/ に素材動画を入れる（ファイル名の順番に並びます）
-  2. BGMを使うなら vlog/bgm.mp3 を置く（なくてもOK）
-  3. python3 vlog/make_vlog.py を実行
-  4. vlog/output/vlog.mp4 が完成品
+  1. vlog/input/ に素材動画を入れる
+  2. （任意）vlog/scenes.json に、シーンごとの「使う範囲・速さ・テロップ」を書く
+     書かなければ、ファイル名順に自動でカットします
+  3. （任意）BGMを使うなら vlog/bgm.mp3 を置く
+  4. python3 vlog/make_vlog.py を実行
+  5. vlog/output/vlog.mp4 が完成品
 """
 import glob
+import json
 import os
 import subprocess
 
 # ===== 設定（ここを変えると仕上がりが変わる） =====
-TARGET_SEC = 25      # 完成動画の目標の長さ（秒）
-TRIM_HEAD = 0.4      # 各素材の「最初」に切り捨てる秒数（録画開始のブレ対策）
-TRIM_TAIL = 0.4      # 各素材の「最後」に切り捨てる秒数（録画停止のブレ対策）
+TARGET_SEC = 25      # scenes.json がないときの目標の長さ（秒）
+TRIM_HEAD = 0.4      # scenes.json がないとき、各素材の「最初」に切り捨てる秒数
+TRIM_TAIL = 0.4      # scenes.json がないとき、各素材の「最後」に切り捨てる秒数
 FADE = 0.3           # カット同士を重ねて切り替える秒数（クロスフェード）
 WIDTH, HEIGHT = 1080, 1920   # 縦画面（9:16）
 FPS = 30
@@ -26,9 +29,21 @@ COLOR_GRADE = (
     "vignette=PI/5"
 )
 
+# iPhoneのHDR動画を、普通の画面用の色（SDR）に変換するフィルター
+HDR_TO_SDR = (
+    "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,"
+    "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv"
+)
+
+# テロップの見た目
+FONT = "/usr/share/fonts/opentype/ipafont-gothic/ipagp.ttf"
+TEXT_SIZE = 58
+TEXT_Y = "h*0.74"    # 画面の上から74%の位置
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR = os.path.join(BASE, "input")
 WORK_DIR = os.path.join(BASE, "work")
+SCENES = os.path.join(BASE, "scenes.json")
 OUTPUT = os.path.join(BASE, "output", "vlog.mp4")
 
 
@@ -37,46 +52,87 @@ def run(cmd):
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def duration(path):
-    """ffprobeで動画の長さ（秒）を調べる"""
+def probe(path, entry):
+    """ffprobeで動画の情報を1つ調べる（例: 長さ、色の種類）"""
     out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+        ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", entry,
          "-of", "default=nw=1:nk=1", path],
         capture_output=True, text=True, check=True,
     )
-    return float(out.stdout.strip())
+    return out.stdout.strip().splitlines()[0]
+
+
+def load_scenes():
+    """scenes.json があれば読み込む。なければファイル名順に自動で作る"""
+    if os.path.exists(SCENES):
+        with open(SCENES, encoding="utf-8") as f:
+            return json.load(f)
+    exts = ("*.mp4", "*.mov", "*.MP4", "*.MOV", "*.m4v")
+    files = sorted(p for e in exts for p in glob.glob(os.path.join(INPUT_DIR, e)))
+    if not files:
+        return []
+    per_clip = (TARGET_SEC + FADE * (len(files) - 1)) / len(files)
+    scenes = []
+    for path in files:
+        dur = float(probe(path, "format=duration"))
+        length = max(0.8, min(per_clip, dur - TRIM_HEAD - TRIM_TAIL))
+        scenes.append({"file": os.path.basename(path), "start": TRIM_HEAD,
+                       "end": TRIM_HEAD + length, "speed": 1.0, "text": ""})
+    return scenes
+
+
+def make_part(i, scene):
+    """1シーン分を「切る → 速さを変える → 縦にそろえる → 色 → テロップ」して保存する"""
+    src = os.path.join(INPUT_DIR, scene["file"])
+    cut = scene["end"] - scene["start"]
+    speed = scene.get("speed", 1.0)
+    length = cut / speed
+
+    filters = [
+        f"setpts=(PTS-STARTPTS)/{speed}",
+        f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase",
+        f"crop={WIDTH}:{HEIGHT}",
+        "setsar=1",
+    ]
+    if probe(src, "stream=color_transfer") in ("arib-std-b67", "smpte2084"):
+        filters.append(HDR_TO_SDR)
+    filters += [f"fps={FPS}", COLOR_GRADE]
+
+    text = scene.get("text", "")
+    if text:
+        # テロップの文字はファイルに書いて渡す（記号のエスケープを気にしなくて済む）
+        text_file = os.path.join(WORK_DIR, f"text{i:02d}.txt")
+        with open(text_file, "w", encoding="utf-8") as f:
+            f.write(text)
+        # 0.4秒かけてふわっと出て、終わり0.4秒でふわっと消える
+        alpha = f"if(lt(t,0.4),t/0.4,if(gt(t,{length - 0.4:.3f}),({length:.3f}-t)/0.4,1))"
+        filters.append(
+            f"drawtext=fontfile={FONT}:textfile={text_file}:fontsize={TEXT_SIZE}:"
+            f"fontcolor=white:alpha='{alpha}':x=(w-text_w)/2:y={TEXT_Y}:"
+            "shadowcolor=black@0.45:shadowx=0:shadowy=3"
+        )
+    filters.append("format=yuv420p")
+
+    dst = os.path.join(WORK_DIR, f"part{i:02d}.mp4")
+    run(["ffmpeg", "-y", "-ss", str(scene["start"]), "-t", f"{cut:.3f}", "-i", src,
+         "-vf", ",".join(filters), "-an", "-c:v", "libx264", "-preset", "fast",
+         "-crf", "18", dst])
+    print(f"  カット{i + 1}: {scene['file']} {cut:.1f}秒 × {speed}倍速 → {length:.1f}秒「{text}」")
+    return dst, length
 
 
 def main():
-    # 1. 素材を集める
-    exts = ("*.mp4", "*.mov", "*.MP4", "*.MOV", "*.m4v")
-    clips = sorted(p for e in exts for p in glob.glob(os.path.join(INPUT_DIR, e)))
-    if not clips:
+    scenes = load_scenes()
+    if not scenes:
         print("vlog/input/ に動画がありません")
         return
     os.makedirs(WORK_DIR, exist_ok=True)
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
 
-    # 2. 1カットの長さを決める（全体が TARGET_SEC 秒になるように）
-    n = len(clips)
-    per_clip = (TARGET_SEC + FADE * (n - 1)) / n
+    parts = [make_part(i, s) for i, s in enumerate(scenes)]
+    n = len(parts)
 
-    # 3. 各素材を「切る → 縦にそろえる → 色をつける」
-    parts = []
-    for i, src in enumerate(clips):
-        usable = duration(src) - TRIM_HEAD - TRIM_TAIL
-        length = max(0.8, min(per_clip, usable))
-        dst = os.path.join(WORK_DIR, f"part{i:02d}.mp4")
-        vf = (
-            f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={WIDTH}:{HEIGHT},setsar=1,fps={FPS},{COLOR_GRADE},format=yuv420p"
-        )
-        run(["ffmpeg", "-y", "-ss", str(TRIM_HEAD), "-i", src, "-t", f"{length:.3f}",
-             "-vf", vf, "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", dst])
-        parts.append((dst, length))
-        print(f"  カット{i + 1}: {os.path.basename(src)} → {length:.1f}秒使用")
-
-    # 4. クロスフェードでつなげる
+    # クロスフェードでつなげる
     inputs, chain = [], []
     for p, _ in parts:
         inputs += ["-i", p]
@@ -89,7 +145,7 @@ def main():
     total = sum(l for _, l in parts) - FADE * (n - 1)
     chain.append(f"{last}fade=t=in:d=0.5,fade=t=out:st={total - 0.8:.3f}:d=0.8[vout]")
 
-    # 5. BGMがあれば付ける（最後はフェードアウト）
+    # BGMがあれば付ける（最後はフェードアウト）
     bgm = next((p for p in glob.glob(os.path.join(BASE, "bgm.*"))), None)
     cmd = ["ffmpeg", "-y"] + inputs
     maps = ["-map", "[vout]"]
